@@ -75,31 +75,64 @@ class _Data:
 class BaseData:
     def __init__(self, file_path):
         self.file_path = file_path
+        self.data = None
 
 
     def load_data(self):
-        if os.path.exists(self.DATA_PATH):
-            with open(self.DATA_PATH, "r") as f:
+        if os.path.exists(self.file_path):
+            with open(self.file_path, "r") as f:
                 self.data = json.load(f)
         else:
             self.save_data()
 
 
     def save_data(self):
-        with open(self.DATA_PATH, "w") as f:
+        with open(self.file_path, "w") as f:
             json.dump(self.data, f, indent=4)
+    
+
+    def manage_data(func):
+        def decorator(self, *args, **kwargs):
+            parent = getattr(self, "parent", None)
+            if parent == None: return #TODO: catch error
+
+            if parent.data == None:
+                print("load")
+                parent.load_data()
+            result = func(self, *args, **kwargs)
+
+            parent.save_data()
+            print("save")
+            return result
+        return decorator
 
 
 class GuildData(BaseData):
     def __init__(self, id):
         self.id = id
-        self.file_path = "datas/guilds/" + self.id + ".json"
+        self.data = {
+            "lang": "en",
+            "whitelist": {}
+        }
+
+        self.file_path = "datas/guilds/" + str(self.id) + ".json"
+        self.load_data()
+        self.whitelist = WhitelistData(self, self.data["whitelist"])
+        print(self.whitelist)
 
 
 class WhitelistData:
     def __init__(self, parent: GuildData, data):
         self.parent = parent
         self.data = data
+    
+
+    @BaseData.manage_data
+    def add_player(self, **kwargs):
+        name = kwargs.get("player_name", None)
+        uuid = kwargs.get("player_uuid", None)
+
+        if name == uuid == None: return #TODO: catch error
 
 
 Data = _Data("datas/data.json")

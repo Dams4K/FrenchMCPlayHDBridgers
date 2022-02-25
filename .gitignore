@@ -1,1 +1,4 @@
 datas/*
+pyvenv.cfg
+venv/*
+**/*.pyc

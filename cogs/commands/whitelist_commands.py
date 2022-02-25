@@ -5,7 +5,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice, cr
 from discord_slash.model import SlashCommandOptionType, SlashCommandPermissionType
 from utils.references import References
 from utils.mcplayhd_api import Player
-from utils.bot_data import DataActions, Data
+from utils.bot_data import *
 
 class WhiteListCommands(commands.Cog):
     def __init__(self, bot):
@@ -22,8 +22,10 @@ class WhiteListCommands(commands.Cog):
             )
         ])
     async def _whitelist_add_command(self, ctx: SlashContext, player_name):
-        err, msg = Data.whitelist(action=DataActions.ADD, guild_id=str(ctx.guild.id), player_name=player_name)
-        await ctx.send(msg)
+        # err, msg = Data.whitelist(action=DataActions.ADD, guild_id=str(ctx.guild.id), player_name=player_name)
+        guild_data = GuildData(ctx.guild.id)
+        guild_data.whitelist.add_player(player_name=player_name)
+        await ctx.send("work")
 
 
     @cog_ext.cog_subcommand(
