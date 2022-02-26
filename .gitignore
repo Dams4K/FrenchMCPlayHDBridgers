@@ -2,3 +2,4 @@ datas/*
 pyvenv.cfg
 venv/*
 .vscode/*
+**/__pycache__/**
