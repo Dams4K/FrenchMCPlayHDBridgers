@@ -18,7 +18,8 @@ class Player:
         else:
             self.name = self.uuid_to_name()
 
-        self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
+        if not "-" in self.uuid:
+            self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
 
     def get_score(self, mode="normal"):
         assert self.can_request(1), "rate limit achieve"

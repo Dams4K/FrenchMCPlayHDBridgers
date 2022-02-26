@@ -17,15 +17,16 @@ class WhiteListCommands(commands.Cog):
         guild_ids=References.BETA_GUILDS,
         options=[
             create_option(
-                name="player_name", description="give minecraft player name (case insensitive)",
-                option_type=SlashCommandOptionType.STRING, required=True
-            )
+                name="name", description="give minecraft player name",
+                option_type=SlashCommandOptionType.STRING, required=False
+            ), create_option(
+                name="uuid", description="give minecraft player uuid",
+                option_type=SlashCommandOptionType.STRING, required=False
+            ),
         ])
-    async def _whitelist_add_command(self, ctx: SlashContext, player_name):
-        # err, msg = Data.whitelist(action=DataActions.ADD, guild_id=str(ctx.guild.id), player_name=player_name)
+    async def _whitelist_add_command(self, ctx: SlashContext, **kwargs):
         guild_data = GuildData(ctx.guild.id)
-        guild_data.whitelist.add_player(player_name=player_name)
-        await ctx.send("work")
+        guild_data.whitelist.add_player(**kwargs)
 
 
     @cog_ext.cog_subcommand(
@@ -33,14 +34,17 @@ class WhiteListCommands(commands.Cog):
         guild_ids=References.BETA_GUILDS,
         options=[
             create_option(
-                name="player_name", description="give minecraft player name (case insensitive)",
-                option_type=SlashCommandOptionType.STRING, required=True
-            )
+                name="name", description="give minecraft player name",
+                option_type=SlashCommandOptionType.STRING, required=False
+            ), create_option(
+                name="uuid", description="give minecraft player uuid",
+                option_type=SlashCommandOptionType.STRING, required=False
+            ),
         ])
-    async def _whitelist_remove_command(self, ctx: SlashContext, player_name):
-        err, msg = Data.whitelist(action=DataActions.REMOVE, guild_id=str(ctx.guild.id), player_name=player_name)
-        await ctx.send(msg)
-    
+    async def _whitelist_remove_command(self, ctx: SlashContext, **kwargs):
+        guild_data = GuildData(ctx.guild.id)
+        guild_data.whitelist.remove_player(**kwargs)
+        
 
     @cog_ext.cog_subcommand(
         base="whitelist", name="list", description="Add player to the whitelist",

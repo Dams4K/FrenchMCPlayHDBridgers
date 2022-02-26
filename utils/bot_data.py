@@ -2,6 +2,7 @@ import json
 import os
 from utils.lang.lang import Lang
 from utils.mcplayhd_api import Player
+import time
 
 class DataActions:
     ADD = 0
@@ -88,21 +89,23 @@ class BaseData:
 
     def save_data(self):
         with open(self.file_path, "w") as f:
-            json.dump(self.data, f, indent=4)
+            data = self.get_data()
+            if data != None:
+                json.dump(data, f, indent=4)
     
+
+    def get_data(self):
+        return self.data
 
     def manage_data(func):
         def decorator(self, *args, **kwargs):
             parent = getattr(self, "parent", None)
             if parent == None: return #TODO: catch error
 
-            if parent.data == None:
-                print("load")
-                parent.load_data()
             result = func(self, *args, **kwargs)
 
             parent.save_data()
-            print("save")
+
             return result
         return decorator
 
@@ -112,13 +115,22 @@ class GuildData(BaseData):
         self.id = id
         self.data = {
             "lang": "en",
-            "whitelist": {}
+            "whitelist": []
         }
+        self.whitelist = None
+        self.whitelist = WhitelistData(self, [])
 
         self.file_path = "datas/guilds/" + str(self.id) + ".json"
         self.load_data()
         self.whitelist = WhitelistData(self, self.data["whitelist"])
-        print(self.whitelist)
+    
+
+    def get_data(self):
+        data = {
+            "lang": "en",
+            "whitelist": self.whitelist.data
+        }
+        return data
 
 
 class WhitelistData:
@@ -127,12 +139,39 @@ class WhitelistData:
         self.data = data
     
 
-    @BaseData.manage_data
-    def add_player(self, **kwargs):
-        name = kwargs.get("player_name", None)
-        uuid = kwargs.get("player_uuid", None)
+    def get_player(self, **kwargs):
+        name = kwargs.get("name", None)
+        uuid = kwargs.get("uuid", None)
 
         if name == uuid == None: return #TODO: catch error
+
+        player = Player(name=name, uuid=uuid)
+
+        return player
+
+
+
+    @BaseData.manage_data
+    def add_player(self, **kwargs):
+        player = self.get_player(**kwargs)
+        if player == None: return
+        
+        if player.uuid in self.data:
+            return #TODO: catch player already in whitelist
+        else:
+            self.data.append(player.uuid)
+    
+
+    @BaseData.manage_data
+    def remove_player(self, **kwargs):
+        player = self.get_player(**kwargs)
+        if player == None: return
+
+        if not player.uuid in self.data:
+            return #TODO: catch player already in whitelist
+        else:
+            self.data.remove(player.uuid)
+
 
 
 Data = _Data("datas/data.json")
