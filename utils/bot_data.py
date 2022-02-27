@@ -3,6 +3,7 @@ import os
 import discord
 import time
 import requests
+import inspect
 from utils.lang.lang import Lang
 from utils.references import References
 
@@ -42,7 +43,7 @@ class BaseData:
         def decorator(self, *args, **kwargs):
             parent = getattr(self, "parent", self)
             if parent == None and not hasattr(self, "save_data"): return #TODO: catch error
-
+            
             result = func(self, *args, **kwargs)
             
             parent.save_data()
