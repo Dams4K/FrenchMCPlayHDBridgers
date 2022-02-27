@@ -4,8 +4,7 @@ from discord.ext import commands
 from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
 from discord_slash.model import SlashCommandOptionType, SlashCommandPermissionType
 from utils.references import References
-from utils.mcplayhd_api import Player
-from utils.bot_data import DataActions, Data
+from utils.bot_data import Player
 
 class Commands(commands.Cog):
     def __init__(self, bot):
@@ -40,7 +39,7 @@ class Commands(commands.Cog):
             )
         ])
     async def _lang(self, ctx: SlashContext, lang: str):
-        Data.set_lang(str(ctx.guild.id), lang)
+        # Data.set_lang(str(ctx.guild.id), lang)
         await ctx.send(lang)
     
 

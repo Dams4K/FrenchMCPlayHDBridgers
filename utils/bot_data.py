@@ -1,82 +1,23 @@
 import json
 import os
-from utils.lang.lang import Lang
-from utils.mcplayhd_api import Player
+import discord
 import time
+import requests
+from utils.lang.lang import Lang
+from utils.references import References
 
-class DataActions:
-    ADD = 0
-    REMOVE = 1
-    LIST = 2
-
-class _Data:
-    def __init__(self, data_path):
-        self.DATA_PATH = data_path
-        self.data = {}
-        self.load_data()
-    
-    def load_data(self):
-        if os.path.exists(self.DATA_PATH):
-            with open(self.DATA_PATH, "r") as f:
-                self.data = json.load(f)
-        else:
-            self.save_data()
-
-
-    def save_data(self):
-        with open(self.DATA_PATH, "w") as f:
-            json.dump(self.data, f, indent=4)
-    
-    def _create_guild_data(self, guild_id):
-        if guild_id in self.data: return
-        
-        self.data[guild_id] = {
-            "lang": "en",
-            "whitelist": {}
-        }
-
-    def whitelist(self, action: DataActions, guild_id: str, player_name: str = ""):
-        self._create_guild_data(guild_id)
-
-        lang = self.data[guild_id]["lang"]
-        whitelist_data: dict = self.data[guild_id]["whitelist"]
-
-        if player_name != "": player = Player(name=player_name)
-
-        err, message = False, "no_message"
-
-        if action == DataActions.ADD:
-            if not player.uuid in whitelist_data:
-                whitelist_data[player.uuid] = {}
-                err, message = False, Lang.get_text("PLAYER_ADDED_FROM_WHITELIST", lang, name=player_name)
-
-            else:
-                err, message = True, Lang.get_text("PLAYER_ALREADY_IN_WHITELIST", lang, name=player_name)
-
-        elif action == DataActions.REMOVE:
-            if player.uuid in whitelist_data:
-                whitelist_data.pop(player.uuid)
-                err, message = False, Lang.get_text("PLAYER_REMOVED_FROM_WHITELIST", lang, name=player_name)
-
-            else:
-                err, message = True, Lang.get_text("PLAYER_ALREADY_NOT_IN_WHITELIST", lang, name=player_name)
-        
-        elif action == DataActions.LIST:
-            message = "```\n- " + "\n- ".join([Player(uuid=e).name for e in whitelist_data]) + "\n```"
-
-        self.save_data()
-        return err, message
-    
-
-    def set_lang(self, guild_id, lang_id: str):
-        self._create_guild_data(guild_id)
-        self.data[guild_id]["lang"] = lang_id
+class APIS_URLS:
+    MCPLAYHD_API_STATUS_URL = "https://mcplayhd.net/api/?token={token}"
+    MCPLAYHD_API_URL = "https://mcplayhd.net/api/fastbuilder/{mode}/stats/{player}?token={token}"
+    NAME_TO_UUID_URL = "https://api.mojang.com/users/profiles/minecraft/{player_name}"
+    UUID_TO_NAME_URL = "https://api.mojang.com/user/profiles/{uuid}/names"
 
 
 class BaseData:
-    def __init__(self, file_path):
+    def __init__(self, file_path, base_data = {}):
         self.file_path = file_path
-        self.data = None
+        self.data = base_data if not hasattr(self, "data") else self.data
+        self.load_data()
 
 
     def load_data(self):
@@ -99,11 +40,11 @@ class BaseData:
 
     def manage_data(func):
         def decorator(self, *args, **kwargs):
-            parent = getattr(self, "parent", None)
-            if parent == None: return #TODO: catch error
+            parent = getattr(self, "parent", self)
+            if parent == None and not hasattr(self, "save_data"): return #TODO: catch error
 
             result = func(self, *args, **kwargs)
-
+            
             parent.save_data()
 
             return result
@@ -117,11 +58,7 @@ class GuildData(BaseData):
             "lang": "en",
             "whitelist": []
         }
-        self.whitelist = None
-        self.whitelist = WhitelistData(self, [])
-
-        self.file_path = "datas/guilds/" + str(self.id) + ".json"
-        self.load_data()
+        super().__init__("datas/guilds/" + str(self.id) + ".json")
         self.whitelist = WhitelistData(self, self.data["whitelist"])
     
 
@@ -171,7 +108,96 @@ class WhitelistData:
             return #TODO: catch player already in whitelist
         else:
             self.data.remove(player.uuid)
+    
+
+    def player_list(self):
+        print(len(self.data))
+        msg = "```\n- " + "\n- ".join([Player(uuid=uuid).name for uuid in self.data]) + "\n```"
+        return msg
 
 
 
-Data = _Data("datas/data.json")
+class KnownPlayers(BaseData):
+    def __init__(self):
+        super().__init__(file_path="datas/known_player.json", base_data=[])
+    
+
+    def get_player(self, **kwargs):
+        uuid = kwargs.get("uuid", None)
+        name = kwargs.get("name", None)
+        for player_data in self.data:
+            if uuid == player_data["uuid"] or name == player_data["name"]:
+                return player_data
+        return False
+    
+
+    @BaseData.manage_data
+    def add_player(self, player):
+        player_data = {
+            "uuid": player.uuid,
+            "name": player.name,
+            "scores": {},
+            "last_update": int(time.time())
+        }
+        
+        self.data.append(player_data)
+
+
+class Player:
+    def __init__(self, **options):
+        self.uuid = options.get("uuid", None)
+        self.name = options.get("name", None)
+        self.known_players = KnownPlayers()
+        assert self.name != None or self.uuid != None, "no uuid and no name set"
+
+        player_data = self.known_players.get_player(name=self.name, uuid=self.uuid)
+        
+        if player_data:
+            self.uuid = player_data["uuid"]
+            self.name = player_data["name"]
+        else:
+
+            if self.name != None:
+                self.uuid = self.name_to_uuid()
+            else:
+                self.name = self.uuid_to_name()
+
+            if not "-" in self.uuid:
+                self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
+                
+            self.known_players.add_player(self)
+            
+
+    def get_score(self, mode="normal"):
+        assert self.can_request(1), "rate limit achieve"
+
+        url = APIS_URLS.MCPLAYHD_API_URL.format(mode=mode, player=self.uuid, token=References.MCPLAYHD_API_TOKEN)
+
+        mcplayhd_data = requests.get(url)
+        stats = mcplayhd_data.json()["data"]["stats"]
+        
+        return stats["timeBest"]
+
+
+    def can_request(self, cost):
+        result = requests.get(APIS_URLS.MCPLAYHD_API_STATUS_URL.format(token=References.MCPLAYHD_API_TOKEN))
+        result_data = result.json()["data"]["user"]
+        
+        if result_data["rateLimit"]-result_data["currentRate"] >= cost:
+            return True
+        return False
+    
+
+    def name_to_uuid(self):
+        mojang_data = requests.get(APIS_URLS.NAME_TO_UUID_URL.format(player_name=self.name))
+        assert not "error" in mojang_data.json(), "player does not exist"
+        return mojang_data.json()["id"]
+
+
+    def uuid_to_name(self):
+        mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))   
+        assert not "error" in mojang_data.json(), "player does not exist"
+        return mojang_data.json()[-1]["name"]
+
+
+# Data = _Data("datas/data.json")
