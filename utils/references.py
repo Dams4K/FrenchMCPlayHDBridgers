@@ -17,14 +17,18 @@ class _References:
         with open(self.BOT_PATH, "r") as f:
             data = json.load(f)
             
-            self.BOT_ID = data["bot_id"]
+            self.AUTHORS_ID = data["authors_id"]
+
             self.BOT_TOKEN = data["bot_token"]
+            self.BOT_ID = data["bot_id"]
             self.BOT_PREFIX = data["default_prefix"]
             self.VERSION = data["version"]
             
             self.COGS_FOLDER = data["cogs_folder"]
 
             self.MCPLAYHD_API_TOKEN = data["mcplayhd_api_token"]
+
+            self.WORKSHEET_ID = data["worksheet_id"]
 
             self.BETA_GUILDS = data["beta_guilds"]
 

@@ -37,7 +37,7 @@ class BaseData:
     
 
     def get_data(self):
-        return self.data
+        return self.data.copy()
 
     def manage_data(func):
         def decorator(self, *args, **kwargs):
@@ -57,18 +57,19 @@ class GuildData(BaseData):
         self.id = id
         self.data = {
             "lang": "en",
-            "whitelist": []
+            "whitelist": {}
         }
+        self.whitelist = WhitelistData(self, {})
         super().__init__("datas/guilds/" + str(self.id) + ".json")
         self.whitelist = WhitelistData(self, self.data["whitelist"])
     
 
     def get_data(self):
         data = {
-            "lang": "en",
+            "lang": "fr",
             "whitelist": self.whitelist.data
         }
-        return data
+        return data.copy()
 
 
 class WhitelistData:
@@ -91,13 +92,15 @@ class WhitelistData:
 
     @BaseData.manage_data
     def add_player(self, **kwargs):
+        member = kwargs.pop("member")
+
         player = self.get_player(**kwargs)
         if player == None: return
         
         if player.uuid in self.data:
             return #TODO: catch player already in whitelist
         else:
-            self.data.append(player.uuid)
+            self.data[player.uuid] = member.id
     
 
     @BaseData.manage_data
@@ -108,7 +111,7 @@ class WhitelistData:
         if not player.uuid in self.data:
             return #TODO: catch player already in whitelist
         else:
-            self.data.remove(player.uuid)
+            self.data.pop(player.uuid)
     
 
     def player_list(self):
@@ -118,7 +121,7 @@ class WhitelistData:
 
 
 
-class KnownPlayers(BaseData):
+class _KnownPlayers(BaseData):
     def __init__(self):
         super().__init__(file_path="datas/known_player.json", base_data=[])
     
@@ -126,9 +129,15 @@ class KnownPlayers(BaseData):
     def get_player(self, **kwargs):
         uuid = kwargs.get("uuid", None)
         name = kwargs.get("name", None)
-        for player_data in self.data:
-            if uuid == player_data["uuid"] or name == player_data["name"]:
-                return player_data
+
+        if uuid:
+            return self.data.get(uuid)
+        else:
+            for i in self.data:
+                player_data = self.data[i]
+                if name.lower() == player_data["name"].lower():
+                    return player_data
+        
         return False
     
 
@@ -137,21 +146,20 @@ class KnownPlayers(BaseData):
         player_data = {
             "uuid": player.uuid,
             "name": player.name,
-            "scores": {},
+            "scores": player.get_all_scores(),
             "last_update": int(time.time())
         }
         
-        self.data.append(player_data)
+        self.data[player.uuid] = player_data
 
 
 class Player:
     def __init__(self, **options):
         self.uuid = options.get("uuid", None)
         self.name = options.get("name", None)
-        self.known_players = KnownPlayers()
         assert self.name != None or self.uuid != None, "no uuid and no name set"
 
-        player_data = self.known_players.get_player(name=self.name, uuid=self.uuid)
+        player_data = KnownPlayers.get_player(name=self.name, uuid=self.uuid)
         
         if player_data:
             self.uuid = player_data["uuid"]
@@ -166,18 +174,39 @@ class Player:
             if not "-" in self.uuid:
                 self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
                 
-            self.known_players.add_player(self)
+            KnownPlayers.add_player(self)
             
 
     def get_score(self, mode="normal"):
-        assert self.can_request(1), "rate limit achieve"
+        if not self.can_request(1):
+            return {"error": "rate limit reached"}
 
         url = APIS_URLS.MCPLAYHD_API_URL.format(mode=mode, player=self.uuid, token=References.MCPLAYHD_API_TOKEN)
 
         mcplayhd_data = requests.get(url)
+        if not "stats" in mcplayhd_data.json()["data"]:
+            return None
         stats = mcplayhd_data.json()["data"]["stats"]
-        
-        return stats["timeBest"]
+        if stats == None:
+            print(f"stats is None for {self.uuid} : {self.name} in {mode}")
+            return None
+        else:
+            return stats["timeBest"]
+
+
+    def get_all_scores(self):
+        normal = self.get_score("normal")
+        short = self.get_score("short")
+        inclined = self.get_score("inclined")
+        onestack = self.get_score("onestack")
+
+        all_scores = {
+            "normal": normal if isinstance(normal, int) else "undefined",
+            "short": short if isinstance(short, int) else "undefined",
+            "inclined": inclined if isinstance(inclined, int) else "undefined",
+            "onestack": onestack if isinstance(onestack, int) else "undefined"
+        }
+        return all_scores
 
 
     def can_request(self, cost):
@@ -196,9 +225,9 @@ class Player:
 
 
     def uuid_to_name(self):
-        mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))   
+        mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))
         assert not "error" in mojang_data.json(), "player does not exist"
         return mojang_data.json()[-1]["name"]
 
-
+KnownPlayers = _KnownPlayers()
 # Data = _Data("datas/data.json")
