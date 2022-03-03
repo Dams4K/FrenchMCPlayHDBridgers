@@ -1,10 +1,11 @@
 from bot import LeaderboardBot
 from utils.references import References
-from discord_slash import SlashCommand
+from utils.lang.lang import Lang
 
 bot = LeaderboardBot()
-slash = SlashCommand(bot, sync_commands=True)
 
-bot.load_cogs(References.COGS_FOLDER)
+# bot.load_cogs(References.COGS_FOLDER)
+
+@bot.slash
 
 bot.run(References.BOT_TOKEN)
