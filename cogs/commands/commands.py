@@ -1,8 +1,5 @@
 import discord
-from discord_slash import cog_ext, SlashContext
 from discord.ext import commands
-from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
-from discord_slash.model import SlashCommandOptionType, SlashCommandPermissionType
 from utils.references import References
 from utils.bot_data import Player
 

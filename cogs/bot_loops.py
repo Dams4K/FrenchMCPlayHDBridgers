@@ -9,7 +9,7 @@ class BotLoops(commands.Cog):
         self.update_players_data.start()
 
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(seconds=600)
     async def update_players_data(self):
         KnownPlayers.load_data()
         current_data = KnownPlayers.get_data()
@@ -21,7 +21,10 @@ class BotLoops(commands.Cog):
             player = Player(uuid=player_data["uuid"])
             last_update = player_data["last_update"]
 
+            print(player.name)
+
             if round(time.time()) - last_update > self.update_players_data._sleep:
+                print("update")
                 player_data["name"] = player.uuid_to_name()
                 player_data["last_update"] = int(time.time())
 
@@ -29,13 +32,13 @@ class BotLoops(commands.Cog):
                 if scores_update != player_data["scores"]:
                     new_scores = {}
                     for i in scores_update:
-                        if int(scores_update[i]) != int(player_data["scores"][i]):
+                        if scores_update[i] != "undefined" and int(scores_update[i]) != int(player_data["scores"][i]):
                             new_scores[i] = scores_update[i]
 
                     last_scores = player_data["scores"].copy()
                     player_data["scores"] = scores_update
                 
-                    channel = discord.utils.get(self.bot.get_all_channels(), id=892459727240433706)
+                    channel = discord.utils.get(self.bot.get_all_channels(), id=945705987833233418)
                     for i in current_data:
                         KnownPlayers.data[i] = current_data[i]
 

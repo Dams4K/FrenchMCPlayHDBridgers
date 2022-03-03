@@ -1,8 +1,6 @@
 import discord
-from discord_slash import cog_ext, SlashContext
+from discord import slash_command
 from discord.ext import commands
-from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
-from discord_slash.model import SlashCommandOptionType, SlashCommandPermissionType
 from utils.references import References
 from utils.bot_data import Player
 from utils.bot_data import *
@@ -17,7 +15,7 @@ class WhiteListCommands(commands.Cog):
         return is_the_author(ctx) or ctx.guild.owner_id == ctx.author.id
 
 
-    @cog_ext.cog_subcommand(
+    @slash_command(
         base="whitelist", name="add", description="Add player to the whitelist",
         guild_ids=References.BETA_GUILDS,
         options=[
@@ -37,7 +35,9 @@ class WhiteListCommands(commands.Cog):
         guild_data = GuildData(ctx.guild.id)
         if not ("uuid" and "name") in kwargs:
             kwargs["name"] = kwargs.get("member").name
-        guild_data.whitelist.add_player(**kwargs)
+        msg = guild_data.whitelist.add_player(**kwargs)
+
+        await ctx.send(msg)
 
 
     @cog_ext.cog_subcommand(
@@ -61,6 +61,8 @@ class WhiteListCommands(commands.Cog):
         if not ("uuid" and "name") in kwargs:
             kwargs["name"] = kwargs.get("member").name
         guild_data.whitelist.remove_player(**kwargs)
+
+        await ctx.send(Lang.get_text("PLAYER_REMOVED_FROM_WHITELIST", "fr"))
         
 
     @cog_ext.cog_subcommand(

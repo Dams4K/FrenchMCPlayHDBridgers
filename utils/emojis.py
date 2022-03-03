@@ -1,5 +1,4 @@
-class _Emojis:
-    PLUS = "<:minus:946350885401948190>"
-    MINUS = "<:plus:946350885183848530>"
-
-Emojis = _Emojis()
+emojis_dict = {
+    "emoji_plus": "<:plus:946350885183848530>",
+    "emoji_minus": "<:minus:946350885401948190>"
+}

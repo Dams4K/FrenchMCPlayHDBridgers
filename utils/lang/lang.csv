@@ -1,6 +1,7 @@
 KEYS,en,fr
 TEST_MSG,This message is in english,Ce message est en français
-PLAYER_ALREADY_NOT_IN_WHITELIST,The player {name} is already not in the whitelist,Le joueur {name} n’est déjà pas dans la whitelist
-PLAYER_ALREADY_IN_WHITELIST,The player {name} is already in the whitelist,Le joueur {name} est déjà dans la whitelist
-PLAYER_REMOVED_FROM_WHITELIST,The player {name} has been remove from the whitelist,Le joueur {name} a été retiré à la liste blanche
-PLAYER_ADDED_FROM_WHITELIST,The player {name} has been whitelisted,Le joueur {name} a été ajouté à la liste blanche
+PLAYER_ADDED_ON_WHITELIST,,[{emoji_plus}] Le joueur **{name}** a été rajouté à la whitelist
+PLAYER_REMOVED_ON_WHITELIST,,[{emoji_minus}] Le joueur **{name}** a été retiré à la whitelist
+PLAYER_ALDREADY_IN_WHITELIST,,Le joueur **{name}** est déjà dans la whitelist
+PLAYER_NOT_WHITELIST,,Le joueur **{name}** a n'est pas dans la whitelist
+PLAYER_UNFOUND,,Le joueur **{name}** est introuvable

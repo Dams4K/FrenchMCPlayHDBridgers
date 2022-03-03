@@ -6,6 +6,7 @@ import requests
 import inspect
 from utils.lang.lang import Lang
 from utils.references import References
+from utils.bot_errors import *
 
 class APIS_URLS:
     MCPLAYHD_API_STATUS_URL = "https://mcplayhd.net/api/?token={token}"
@@ -84,9 +85,11 @@ class WhitelistData:
 
         if name == uuid == None: return #TODO: catch error
 
-        player = Player(name=name, uuid=uuid)
-
-        return player
+        try:
+            player = Player(name=name, uuid=uuid)
+            return player
+        except PlayerNotFound:
+            return None
 
 
 
@@ -95,12 +98,13 @@ class WhitelistData:
         member = kwargs.pop("member")
 
         player = self.get_player(**kwargs)
-        if player == None: return
+        if player == None: return Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs)
         
         if player.uuid in self.data:
-            return #TODO: catch player already in whitelist
+            return Lang.get_text("PLAYER_ALDREADY_IN_WHITELIST", "fr", **kwargs)
         else:
             self.data[player.uuid] = member.id
+            return Lang.get_text("PLAYER_ADDED_ON_WHITELIST", "fr", **kwargs)
     
 
     @BaseData.manage_data
@@ -146,7 +150,12 @@ class _KnownPlayers(BaseData):
         player_data = {
             "uuid": player.uuid,
             "name": player.name,
-            "scores": player.get_all_scores(),
+            "scores": {
+                "normal": 0,
+                "short": 0,
+                "inclined": 0,
+                "onestack": 0
+            },
             "last_update": int(time.time())
         }
         
@@ -220,13 +229,17 @@ class Player:
 
     def name_to_uuid(self):
         mojang_data = requests.get(APIS_URLS.NAME_TO_UUID_URL.format(player_name=self.name))
-        assert not "error" in mojang_data.json(), "player does not exist"
+        if "error" in mojang_data.json():
+            raise PlayerNotFound
+
         return mojang_data.json()["id"]
 
 
     def uuid_to_name(self):
         mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))
-        assert not "error" in mojang_data.json(), "player does not exist"
+        if "error" in mojang_data.json():
+            raise PlayerNotFound
+            
         return mojang_data.json()[-1]["name"]
 
 KnownPlayers = _KnownPlayers()

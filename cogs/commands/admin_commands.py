@@ -1,5 +1,5 @@
+from discord import slash_command
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext
 from utils.references import References
 
 class AdminCommands(commands.Cog):
@@ -7,13 +7,12 @@ class AdminCommands(commands.Cog):
         self.bot = bot
 
 
-    @cog_ext.cog_slash(
+    @slash_command(
         name="test", description="Add player to the whitelist",
         guild_ids=References.BETA_GUILDS,
         options=[
 
         ])
-    @commands.has_guild_permissions(administrator=True)
     async def _test(self, ctx: SlashContext):
         await ctx.send("work fine")
 
