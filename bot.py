@@ -3,6 +3,7 @@ import discord
 import os
 from discord.ext import commands
 from utils.references import References
+from utils.overwriting import *
 
 class LeaderboardBot(commands.Bot):
     def __init__(self):
@@ -13,16 +14,20 @@ class LeaderboardBot(commands.Bot):
         print(self.user, "is now ready")
         print("version:", References.VERSION)
 
+
+    # async def on_application_command(self, ctx):
+    #     print(ctx)
+
+    async def get_application_context(self, interaction, cls = None):
+        if cls is None:
+            cls = BotApplicationContext
+            
+        return cls(self, interaction)
+
+
     def load_cogs(self, path: str):
         for cog_file in self.get_cogs_file(path):
             self.load_extension(cog_file.replace("/", ".")[:-3])
-        # for filename in os.listdir(path):
-        #     if os.path.isfile(path + "/" + filename):
-        #         if filename.endswith(".py"):
-        #             cog_path = path.replace("/", ".")
-        #             self.load_extension(f"{cog_path}.{filename[:-3]}")
-        #     elif os.path.isdir(path + "/" + filename):
-        #         self.load_cogs(path + "/" + filename)
 
 
     def get_cogs_file(self, path: str) -> list:

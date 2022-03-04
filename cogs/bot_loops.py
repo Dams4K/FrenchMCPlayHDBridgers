@@ -39,13 +39,14 @@ class BotLoops(commands.Cog):
                     player_data["scores"] = scores_update
                 
                     channel = discord.utils.get(self.bot.get_all_channels(), id=945705987833233418)
-                    for i in current_data:
-                        KnownPlayers.data[i] = current_data[i]
+                
+                for i in current_data:
+                    KnownPlayers.data[i] = current_data[i]
 
-                    KnownPlayers.save_data()
-                    current_data = KnownPlayers.get_data()
+                KnownPlayers.save_data()
+                current_data = KnownPlayers.get_data()
 
-                    await sheet.update_sheet(guild_data, player_data, last_scores, new_scores, channel)
+                await sheet.update_sheet(guild_data, player_data, last_scores, new_scores, channel)
 
                 await asyncio.sleep(4) #TODO: changer le temps en fonction du nombre de requetes max par minutes
             
@@ -59,4 +60,5 @@ class BotLoops(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(BotLoops(bot))
+    # bot.add_cog(BotLoops(bot))
+    pass

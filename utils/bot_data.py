@@ -79,6 +79,10 @@ class WhitelistData:
         self.data = data
     
 
+    def get_data(self):
+        return self.data.copy()
+
+
     def get_player(self, **kwargs):
         name = kwargs.get("name", None)
         uuid = kwargs.get("uuid", None)
@@ -96,33 +100,42 @@ class WhitelistData:
     @BaseData.manage_data
     def add_player(self, **kwargs):
         member = kwargs.pop("member")
+        response_args = {
+            "content": "nothing to say..."
+        }
 
         player = self.get_player(**kwargs)
-        if player == None: return Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs)
         
-        if player.uuid in self.data:
-            return Lang.get_text("PLAYER_ALDREADY_IN_WHITELIST", "fr", **kwargs)
+        if player == None:
+            response_args["content"] = ""
+            response_args["embed"] = gen_error(Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs))
+        elif player.uuid in self.data:
+            response_args["content"] = Lang.get_text("PLAYER_ALDREADY_IN_WHITELIST", "fr", **kwargs)
         else:
             self.data[player.uuid] = member.id
-            return Lang.get_text("PLAYER_ADDED_ON_WHITELIST", "fr", **kwargs)
+            response_args["content"] = Lang.get_text("PLAYER_ADDED_ON_WHITELIST", "fr", **kwargs)
+        
+        return response_args
     
 
     @BaseData.manage_data
     def remove_player(self, **kwargs):
         player = self.get_player(**kwargs)
-        if player == None: return
+        
+        response_args = {
+            "content": "nothing to say..."
+        }
 
-        if not player.uuid in self.data:
-            return #TODO: catch player already in whitelist
+        if player == None:
+            response_args["content"] = ""
+            response_args["embed"] = gen_error(Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs))
+        elif not player.uuid in self.data:
+            response_args["content"] = Lang.get_text("PLAYER_NOT_IN_WHITELIST", "fr", **kwargs)
         else:
             self.data.pop(player.uuid)
-    
+            response_args["content"] = Lang.get_text("PLAYER_REMOVED_FROM_WHITELIST", "fr", **kwargs)
 
-    def player_list(self):
-        print(len(self.data))
-        msg = "```\n- " + "\n- ".join([Player(uuid=uuid).name for uuid in self.data]) + "\n```"
-        return msg
-
+        return response_args
 
 
 class _KnownPlayers(BaseData):

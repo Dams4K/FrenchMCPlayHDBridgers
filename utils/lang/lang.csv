@@ -1,7 +1,9 @@
 KEYS,en,fr
 TEST_MSG,This message is in english,Ce message est en français
 PLAYER_ADDED_ON_WHITELIST,,[{emoji_plus}] Le joueur **{name}** a été rajouté à la whitelist
-PLAYER_REMOVED_ON_WHITELIST,,[{emoji_minus}] Le joueur **{name}** a été retiré à la whitelist
+PLAYER_REMOVED_FROM_WHITELIST,,[{emoji_minus}] Le joueur **{name}** a été retiré de la whitelist
 PLAYER_ALDREADY_IN_WHITELIST,,Le joueur **{name}** est déjà dans la whitelist
-PLAYER_NOT_WHITELIST,,Le joueur **{name}** a n'est pas dans la whitelist
+PLAYER_NOT_IN_WHITELIST,,Le joueur **{name}** a n'est pas dans la whitelist
 PLAYER_UNFOUND,,Le joueur **{name}** est introuvable
+WHITELIST_LIST,,Nombre de joueur dans la whitelist
+BASE_WHITELIST_LIST_PLAYER,,**{name}** (*{member}*)

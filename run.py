@@ -4,8 +4,6 @@ from utils.lang.lang import Lang
 
 bot = LeaderboardBot()
 
-# bot.load_cogs(References.COGS_FOLDER)
-
-@bot.slash
+bot.load_cogs(References.COGS_FOLDER)
 
 bot.run(References.BOT_TOKEN)

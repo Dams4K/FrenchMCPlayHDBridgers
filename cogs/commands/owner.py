@@ -81,4 +81,5 @@ class OwnerCog(commands.Cog):
 
 
 def setup(bot: commands.Bot):
-    bot.add_cog(OwnerCog(bot))
+    # bot.add_cog(OwnerCog(bot))
+    pass

@@ -1,77 +1,79 @@
 import discord
-from discord import slash_command
-from discord.ext import commands
+from discord.commands import SlashCommandGroup
+from discord import Option
+from discord.commands.context import ApplicationContext
+from discord.ext import commands, pages
+
 from utils.references import References
 from utils.bot_data import Player
 from utils.bot_data import *
 from utils.checks import *
+from utils.overwriting import *
+
 import time
 
 class WhiteListCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.base_page: discord.Embed = discord.Embed(
+            title=Lang.get_text("WHITELIST_LIST", "fr"),
+            color=0xffffff
+        )
 
     async def cog_check(self, ctx: commands.Context):
         return is_the_author(ctx) or ctx.guild.owner_id == ctx.author.id
 
+    def get_pages(self, ctx: BotApplicationContext):
+        whitelist_data = ctx.guild_data.whitelist.get_data()
+        pages = []
 
-    @slash_command(
-        base="whitelist", name="add", description="Add player to the whitelist",
-        guild_ids=References.BETA_GUILDS,
-        options=[
-            create_option(
-                name="member", description="give member chacal",
-                option_type=SlashCommandOptionType.USER, required=True
-            ),
-            create_option(
-                name="name", description="give minecraft player name",
-                option_type=SlashCommandOptionType.STRING, required=False
-            ), create_option(
-                name="uuid", description="give minecraft player uuid",
-                option_type=SlashCommandOptionType.STRING, required=False
-            )
-        ])
-    async def _whitelist_add_command(self, ctx: SlashContext, **kwargs):
-        guild_data = GuildData(ctx.guild.id)
-        if not ("uuid" and "name") in kwargs:
-            kwargs["name"] = kwargs.get("member").name
-        msg = guild_data.whitelist.add_player(**kwargs)
+        MAX_PLAYER_IN_PAGE = 15
 
-        await ctx.send(msg)
+        for i in range(int(len(whitelist_data)/MAX_PLAYER_IN_PAGE)+1):
+            new_page = self.base_page.copy()
+            description = ""
+            for j in range(i*MAX_PLAYER_IN_PAGE, min(int((i+1)*MAX_PLAYER_IN_PAGE), len(whitelist_data))):
+                uuid = list(whitelist_data.keys())[j]
+                player = Player(uuid=uuid)
+                description += Lang.get_text("BASE_WHITELIST_LIST_PLAYER", "fr", name=player.name) + "\n"
+
+            new_page.description = description
+            pages.append(new_page)
+        return pages
 
 
-    @cog_ext.cog_subcommand(
-        base="whitelist", name="remove", description="Add player to the whitelist",
-        guild_ids=References.BETA_GUILDS,
-        options=[
-            create_option(
-                name="member", description="give member chacal",
-                option_type=SlashCommandOptionType.USER, required=False
-            ),
-            create_option(
-                name="name", description="give minecraft player name",
-                option_type=SlashCommandOptionType.STRING, required=False
-            ), create_option(
-                name="uuid", description="give minecraft player uuid",
-                option_type=SlashCommandOptionType.STRING, required=False
-            ),
-        ])
-    async def _whitelist_remove_command(self, ctx: SlashContext, **kwargs):
-        guild_data = GuildData(ctx.guild.id)
-        if not ("uuid" and "name") in kwargs:
-            kwargs["name"] = kwargs.get("member").name
-        guild_data.whitelist.remove_player(**kwargs)
+    whitelist = SlashCommandGroup("whitelist", "Comme ça le joueur sera dans le leaderbord :)")
 
-        await ctx.send(Lang.get_text("PLAYER_REMOVED_FROM_WHITELIST", "fr"))
+
+    @whitelist.command(name="add")
+    async def whitelist_add_player(
+        self, ctx,
+        member: Option(discord.Member, "member", required=True),
+        name: Option(str, "player_name"),
+        uuid: Option(str, "player_name")
+    ):
+        if uuid == name == None: name = member.name
+
+        response_args = ctx.guild_data.whitelist.add_player(member=member, name=name, uuid=uuid)
+        await ctx.respond(**response_args)
+
+
+    @whitelist.command(name="remove")
+    async def whitelist_remove_player(self, ctx,
+        member: Option(discord.Member, "member"),
+        name: Option(str, "player_name"),
+        uuid: Option(str, "player_name")
+    ):
+        if uuid == name == None and member != None: name = member.name
+        
+        response_args = ctx.guild_data.whitelist.remove_player(member=member, name=name, uuid=uuid)
+        await ctx.respond(**response_args)
         
 
-    @cog_ext.cog_subcommand(
-        base="whitelist", name="list", description="Add player to the whitelist",
-        guild_ids=References.BETA_GUILDS)
-    async def _whitelist_list_command(self, ctx: SlashContext):
-        msg = await ctx.send("load whitelist")
-        new_content = GuildData(ctx.guild.id).whitelist.player_list()
-        await msg.edit(content=new_content)
+    @whitelist.command(name="list")
+    async def whitelist_list(self, ctx):
+        paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False)
+        await paginator.respond(ctx.interaction)
 
 def setup(bot):
     bot.add_cog(WhiteListCommands(bot))
