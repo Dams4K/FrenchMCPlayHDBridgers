@@ -13,10 +13,8 @@ class LeaderboardBot(commands.Bot):
         os.system("clear||cls")
         print(self.user, "is now ready")
         print("version:", References.VERSION)
-
-
-    # async def on_application_command(self, ctx):
-    #     print(ctx)
+        await self.load_cogs(References.COGS_FOLDER)
+        
 
     async def get_application_context(self, interaction, cls = None):
         if cls is None:
@@ -25,7 +23,8 @@ class LeaderboardBot(commands.Bot):
         return cls(self, interaction)
 
 
-    def load_cogs(self, path: str):
+    async def load_cogs(self, path: str):
+        await self.wait_until_ready()
         for cog_file in self.get_cogs_file(path):
             self.load_extension(cog_file.replace("/", ".")[:-3])
 

@@ -1,5 +1,6 @@
 import discord
-from discord.commands import SlashCommandGroup
+from discord.commands import permissions, slash_command, user_command
+from discord.commands import SlashCommandGroup, UserCommand
 from discord import Option
 from discord.commands.context import ApplicationContext
 from discord.ext import commands, pages
@@ -20,8 +21,6 @@ class WhiteListCommands(commands.Cog):
             color=0xffffff
         )
 
-    async def cog_check(self, ctx: commands.Context):
-        return is_the_author(ctx) or ctx.guild.owner_id == ctx.author.id
 
     def get_pages(self, ctx: BotApplicationContext):
         whitelist_data = ctx.guild_data.whitelist.get_data()
@@ -35,45 +34,59 @@ class WhiteListCommands(commands.Cog):
             for j in range(i*MAX_PLAYER_IN_PAGE, min(int((i+1)*MAX_PLAYER_IN_PAGE), len(whitelist_data))):
                 uuid = list(whitelist_data.keys())[j]
                 player = Player(uuid=uuid)
-                description += Lang.get_text("BASE_WHITELIST_LIST_PLAYER", "fr", name=player.name) + "\n"
+                member = discord.utils.get(self.bot.get_all_members(), id=whitelist_data[uuid])
+                description += Lang.get_text("BASE_WHITELIST_LIST_PLAYER", "fr", name=player.name, member=member) + "\n"
 
             new_page.description = description
             pages.append(new_page)
         return pages
 
 
-    whitelist = SlashCommandGroup("whitelist", "Comme ça le joueur sera dans le leaderbord :)")
+    whitelist = SlashCommandGroup(
+        "whitelist", "Comme ça le joueur sera dans le leaderbord :)", guild_ids=References.BETA_GUILDS
+    )
+    # whitelist.checks = [is_in_guild]
 
 
-    @whitelist.command(name="add")
+    @whitelist.command(name="add", guild_ids=References.BETA_GUILDS)
     async def whitelist_add_player(
         self, ctx,
         member: Option(discord.Member, "member", required=True),
-        name: Option(str, "player_name"),
-        uuid: Option(str, "player_name")
+        name: Option(str, "player_name", required=False) = None,
+        uuid: Option(str, "player_uuid", required=False) = None
     ):
-        if uuid == name == None: name = member.name
+        if uuid == name == None: name = member.nick if member.nick else member.name
 
         response_args = ctx.guild_data.whitelist.add_player(member=member, name=name, uuid=uuid)
         await ctx.respond(**response_args)
 
 
-    @whitelist.command(name="remove")
+    @whitelist.command(name="remove", guild_ids=References.BETA_GUILDS)
     async def whitelist_remove_player(self, ctx,
         member: Option(discord.Member, "member"),
-        name: Option(str, "player_name"),
-        uuid: Option(str, "player_name")
+        name: Option(str, "player_name") = None,
+        uuid: Option(str, "player_name") = None
     ):
-        if uuid == name == None and member != None: name = member.name
+        if uuid == name == None and member != None: name = member.nick if member.nick else member.name
         
         response_args = ctx.guild_data.whitelist.remove_player(member=member, name=name, uuid=uuid)
         await ctx.respond(**response_args)
         
 
-    @whitelist.command(name="list")
+    @whitelist.command(name="list", description="List of whitelisted players", guild_ids=References.BETA_GUILDS)
     async def whitelist_list(self, ctx):
-        paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False)
+        paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
         await paginator.respond(ctx.interaction)
+
+
+    # USER_COMMANDS
+    @user_command(name="Whitelist Add Member", guild_ids=References.BETA_GUILDS)
+    async def user_whitelist_add_player(self, ctx, member: discord.Member):
+        await self.whitelist_add_player(self, ctx, member=member)
+    @user_command(name="Whitelist Remove Member", guild_ids=References.BETA_GUILDS)
+    async def user_whitelist_remove_player(self, ctx, member: discord.Member):
+        await self.whitelist_remove_player(self, ctx, member=member)
+    
 
 def setup(bot):
     bot.add_cog(WhiteListCommands(bot))
