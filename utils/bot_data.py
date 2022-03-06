@@ -160,19 +160,7 @@ class _KnownPlayers(BaseData):
 
     @BaseData.manage_data
     def add_player(self, player):
-        player_data = {
-            "uuid": player.uuid,
-            "name": player.name,
-            "scores": {
-                "normal": 0,
-                "short": 0,
-                "inclined": 0,
-                "onestack": 0
-            },
-            "last_update": int(time.time())
-        }
-        
-        self.data[player.uuid] = player_data
+        self.data[player.uuid] = player.to_dict()
 
 
 class Player:
@@ -186,6 +174,8 @@ class Player:
         if player_data:
             self.uuid = player_data["uuid"]
             self.name = player_data["name"]
+            self.scores = player_data["scores"]
+            self.last_update = player_data["last_update"]
         else:
 
             if self.name != None:
@@ -193,9 +183,16 @@ class Player:
             else:
                 self.name = self.uuid_to_name()
 
-            if not "-" in self.uuid:
-                self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
-                
+            self.uuid = self.uuid.replace("-", "")
+            self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
+            self.last_update = 0
+            self.scores = {
+                "normal": -1,
+                "short": -1,
+                "inclined": -1,
+                "onestack": -1
+            }
+
             KnownPlayers.add_player(self)
             
 
@@ -216,19 +213,27 @@ class Player:
             return stats["timeBest"]
 
 
-    def get_all_scores(self):
+    def update_scores(self):
+        """Return dict of best times of all different modes
+        of the player
+        -1 when the player haven't personal best yet
+        """
         normal = self.get_score("normal")
         short = self.get_score("short")
         inclined = self.get_score("inclined")
         onestack = self.get_score("onestack")
+        last_scores = self.scores.copy()
 
-        all_scores = {
-            "normal": normal if isinstance(normal, int) else "undefined",
-            "short": short if isinstance(short, int) else "undefined",
-            "inclined": inclined if isinstance(inclined, int) else "undefined",
-            "onestack": onestack if isinstance(onestack, int) else "undefined"
+        self.scores = {
+            "normal": normal,
+            "short": short,
+            "inclined": inclined,
+            "onestack": onestack
         }
-        return all_scores
+
+        new_scores = {k: v for k, v in self.scores.items() if (k, v) not in last_scores.items()}
+
+        return new_scores
 
 
     def can_request(self, cost):
@@ -254,6 +259,17 @@ class Player:
             raise PlayerNotFound
             
         return mojang_data.json()[-1]["name"]
+    
+
+    def to_dict(self):
+        return {
+            "uuid": self.uuid,
+            "name": self.name,
+            "scores": self.scores.copy(),
+            "last_update": self.last_update
+        }
 
 KnownPlayers = _KnownPlayers()
-# Data = _Data("datas/data.json")
+
+def get_current_status():
+    return requests.get(APIS_URLS.MCPLAYHD_API_STATUS_URL.format(token=References.MCPLAYHD_API_TOKEN)).json()

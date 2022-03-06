@@ -45,7 +45,7 @@ class WhiteListCommands(commands.Cog):
     whitelist = SlashCommandGroup(
         "whitelist", "Comme ça le joueur sera dans le leaderbord :)", guild_ids=References.BETA_GUILDS
     )
-    # whitelist.checks = [is_in_guild]
+    whitelist.checks = [can_moderate]
 
 
     @whitelist.command(name="add", guild_ids=References.BETA_GUILDS)
