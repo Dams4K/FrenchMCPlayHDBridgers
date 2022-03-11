@@ -31,9 +31,9 @@ class BaseData:
 
 
     def save_data(self):
-        with open(self.file_path, "w") as f:
-            data = self.get_data()
-            if data != None:
+        data = self.get_data()
+        if data != None:
+            with open(self.file_path, "w") as f:
                 json.dump(data, f, indent=4)
     
 
@@ -43,7 +43,8 @@ class BaseData:
     def manage_data(func):
         def decorator(self, *args, **kwargs):
             parent = getattr(self, "parent", self)
-            if parent == None and not hasattr(self, "save_data"): return #TODO: catch error
+            if parent == None and not hasattr(parent, "save_data") and not hasattr(parent, "load_data"): assert False, f"{self} <-> manage_data -> decorator -> not save or load func in parent"
+            parent.load_data()
             
             result = func(self, *args, **kwargs)
             
@@ -56,21 +57,38 @@ class BaseData:
 class GuildData(BaseData):
     def __init__(self, id):
         self.id = id
+        self.whitelist = None
         self.data = {
-            "lang": "en",
-            "whitelist": {}
+            "lang": "fr",
+            "whitelist": {},
+            "pb_channel": None,
+            "spreadsheet_id": None
         }
-        self.whitelist = WhitelistData(self, {})
+
         super().__init__("datas/guilds/" + str(self.id) + ".json")
         self.whitelist = WhitelistData(self, self.data["whitelist"])
     
 
     def get_data(self):
-        data = {
-            "lang": "fr",
-            "whitelist": self.whitelist.data
-        }
-        return data.copy()
+        data = self.data.copy()
+        whitelist_data = getattr(self.whitelist, "data", {}).copy()
+        data["whitelist"] = whitelist_data
+        return data
+
+    def get_pb_channel(self):
+        return self.data.get("pb_channel", None)
+    
+    def get_spreadsheet_id(self):
+        return self.data.get("spreadsheet_id", None)
+
+
+    @BaseData.manage_data
+    def set_pb_channel(self, new_id):
+        self.data["pb_channel"] = new_id
+    
+    @BaseData.manage_data
+    def set_spreadsheet_id(self, new_id):
+        self.data["spreadsheet_id"] = new_id
 
 
 class WhitelistData:
@@ -159,6 +177,20 @@ class _KnownPlayers(BaseData):
     
 
     @BaseData.manage_data
+    def update_player(self, uuid):
+        player = Player(uuid=uuid)
+        last_update = player.last_update
+        
+        player.last_update = int(time.time())
+        last_scores = player.scores.copy()
+        new_scores = player.update_scores()
+        self.data[uuid] = player.to_dict()
+        
+        if last_scores == player.scores: return False # Nothing Change
+
+        return new_scores
+
+    @BaseData.manage_data
     def add_player(self, player):
         self.data[player.uuid] = player.to_dict()
 
@@ -232,7 +264,6 @@ class Player:
         }
 
         new_scores = {k: v for k, v in self.scores.items() if (k, v) not in last_scores.items()}
-
         return new_scores
 
 
@@ -259,7 +290,7 @@ class Player:
             raise PlayerNotFound
             
         return mojang_data.json()[-1]["name"]
-    
+
 
     def to_dict(self):
         return {
