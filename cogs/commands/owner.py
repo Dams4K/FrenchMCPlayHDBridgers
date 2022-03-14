@@ -14,6 +14,10 @@ class OwnerCog(commands.Cog):
     async def cog_check(self, ctx: commands.Context):
         return is_the_author(ctx)
 
+    @commands.command(name="stop")
+    async def stop_bot(self, ctx):
+        await self.bot.close()
+
     @commands.group(name="extensions", pass_context=True, invoke_without_command=True)
     async def extensions_manager(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
@@ -60,9 +64,9 @@ class OwnerCog(commands.Cog):
 
 
     # This thing is cool but really risky for security
-    @commands.command(name="dsexec")
-    async def dsexec(self, ctx: Context, *, code):
-        await aexec(code, ctx=ctx, bot=self.bot)
+    # @commands.command(name="dsexec")
+    # async def dsexec(self, ctx: Context, *, code):
+    #     await aexec(code, ctx=ctx, bot=self.bot)
     #
     # This command can execute code and create new commands
     #
@@ -81,5 +85,5 @@ class OwnerCog(commands.Cog):
 
 
 def setup(bot: commands.Bot):
-    # bot.add_cog(OwnerCog(bot))
+    bot.add_cog(OwnerCog(bot))
     pass

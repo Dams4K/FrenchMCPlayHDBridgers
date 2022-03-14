@@ -22,6 +22,10 @@ class WhiteListCommands(commands.Cog):
         )
 
 
+    def cog_check(self, ctx: commands.Context):
+        return can_moderate(ctx)
+
+
     def get_pages(self, ctx: BotApplicationContext):
         whitelist_data = ctx.guild_data.whitelist.get_data()
         pages = []
@@ -77,6 +81,31 @@ class WhiteListCommands(commands.Cog):
     async def whitelist_list(self, ctx):
         paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
         await paginator.respond(ctx.interaction)
+
+
+    # @commands.command(name="whitelist_add")
+    # async def _whitelist_add(self, ctx, member: discord.Member, name: str = None, uuid: str = None):
+    #     if uuid == name == None: name = member.nick if member.nick else member.name
+
+    #     guild_data = GuildData(ctx.guild.id)
+    #     response_args = guild_data.whitelist.add_player(member=member, name=name, uuid=uuid)
+    #     await ctx.send(**response_args)
+
+
+    # @commands.command(name="whitelist_remove")
+    # async def _whitelist_add(self, ctx, member: discord.Member = None, name: str = None, uuid: str = None):
+    #     if uuid == name == None and member != None: name = member.nick if member.nick else member.name
+
+    #     guild_data = GuildData(ctx.guild.id)
+    #     response_args = guild_data.whitelist.remove_player(member=member, name=name, uuid=uuid)
+    #     await ctx.send(**response_args)
+
+
+    # @commands.command(name="whitelist_list")
+    # async def whitelist_list(self, ctx):
+    #     guild_data = GuildData(ctx.guild.id)
+    #     paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
+    #     await paginator.send(ctx.interaction)
 
 
     # USER_COMMANDS

@@ -14,7 +14,11 @@ class LeaderboardBot(commands.Bot):
         print(self.user, "is now ready")
         print("version:", References.VERSION)
         await self.load_cogs(References.COGS_FOLDER)
-        
+    
+
+    async def on_application_command(self, ctx: BotApplicationContext):
+        print(ctx.command.qualified_name)
+
 
     async def get_application_context(self, interaction, cls = None):
         if cls is None:

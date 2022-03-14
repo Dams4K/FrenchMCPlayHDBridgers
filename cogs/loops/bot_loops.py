@@ -2,11 +2,22 @@ import asyncio, time, discord
 from discord.ext import commands, tasks
 from utils.bot_data import BaseData, KnownPlayers, Player, GuildData, get_current_status
 from google.sheet import LeaderboardSheet
+from utils.references import References
 
 class BotLoops(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.update_players.start()
+        self.desynced_commands.start()
+
+
+    @tasks.loop(seconds=20)
+    async def desynced_commands(self):
+        for guild_id in References.BETA_GUILDS:
+            g_desynced_commands = await self.bot.get_desynced_commands(guild_id=guild_id)
+            if g_desynced_commands:
+                # print("resync", guild_id, g_desynced_commands)
+                await self.bot.sync_commands(guild_ids=[guild_id], unregister_guilds=[guild_id])
 
 
     @tasks.loop(seconds=600)
@@ -39,7 +50,7 @@ class BotLoops(commands.Cog):
                         if not ch: continue
                     
                         guilds_data[g_data] = ch
-                    await LeaderboardSheet.update_sheet(guilds_data, player, l_scores)
+                    await LeaderboardSheet.update_sheet(guilds_data, player, l_scores, new_scores)
                 await asyncio.sleep(sleep_time_betwen_player_update * 4 + 1)
     
     

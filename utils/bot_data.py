@@ -230,7 +230,7 @@ class Player:
 
     def get_score(self, mode="normal"):
         if not self.can_request(1):
-            return {"error": "rate limit reached"}
+            return -1
 
         url = APIS_URLS.MCPLAYHD_API_URL.format(mode=mode, player=self.uuid, token=References.MCPLAYHD_API_TOKEN)
 

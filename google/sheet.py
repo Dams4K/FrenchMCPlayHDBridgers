@@ -35,7 +35,7 @@ class _LeaderboardSheet:
         if isinstance(scores["normal"], int) and scores["normal"] > 0 and isinstance(scores["short"], int) and scores["short"] > 0:
             return int(round(scores["normal"] / 2 + scores["short"], 3))
 
-    async def update_sheet(self, guilds_data, player: Player, l_scores):
+    async def update_sheet(self, guilds_data, player: Player, l_scores, new_scores):
         for guild_data in guilds_data:
             member_id = guild_data.whitelist.data[player.uuid]
             spreadsheet_id = guild_data.get_spreadsheet_id()
@@ -43,45 +43,54 @@ class _LeaderboardSheet:
                 print("spreadsheet_id is None")
                 continue
 
-            new_scores = player.scores
             if self.GLOBAL_MODES.intersection(set(new_scores)):
-                l_sheet_values = self.sheet.values().get(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute().get("values", [])
                 if self.INCLINED_MODE in new_scores: new_scores.pop(self.INCLINED_MODE)
                 if self.ONESTACK_MODE in new_scores: new_scores.pop(self.ONESTACK_MODE)
-                n_leaderboard = await self.update_global_sheet(guild_data, l_sheet_values, player, new_scores, l_scores, guilds_data[guild_data], member_id)
+                
+                n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
                 if n_leaderboard:
                     self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
                     request = self.sheet.values().update(
                         spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE,
                         valueInputOption="USER_ENTERED", body={"values": self.gen_leaderboard(n_leaderboard) }
                     ).execute()
+            
             if self.INCLINED_MODE in new_scores:
                 pass
             if self.ONESTACK_MODE in new_scores:
                 pass
 
 
-    async def update_global_sheet(self, guild_data, l_sheet_values, player, new_scores, l_scores, channel, member_id):
+    async def update_global_sheet(self, guild_data, player, new_scores, l_scores, channel, member_id, scores):
+        spreadsheet_id = guild_data.get_spreadsheet_id()
+        l_sheet_values = self.sheet.values().get(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute().get("values", [])
+        
         l_leaderboard = self.parse_global_leaderboard(l_sheet_values)
+        print(member_id)
         l_global_score = self.calc_global_score(l_scores)
         n_leaderboard = self.get_global_leaderboard(guild_data)
         
-        n_global_score = self.calc_global_score(new_scores)
-        print(n_global_score)
-        print(player.scores["short"])
+        n_global_score = self.calc_global_score(scores)
+        
         if n_global_score == None or player.scores["short"] == None or player.scores["short"] > 6000: return
 
         l_player_pos = -1
         for p_data in l_leaderboard.get(l_global_score, []):
             if p_data["name"] == player.name:
-                l_player_pos = list(l_leaderboard.keys()).index(l_global_score)
+                l_lb_list_times = list(l_leaderboard.keys())
+                l_lb_list_times.remove(None)
+                l_lb_list_times.sort()
+                l_player_pos = l_lb_list_times.index(l_global_score) + 1
 
         
         n_player_pos = -1
         
         for p_data in n_leaderboard.get(n_global_score, []):
             if p_data["name"] == player.name:
-                n_player_pos = list(n_leaderboard.keys()).index(n_global_score)
+                n_lb_list_times = list(n_leaderboard.keys())
+                n_lb_list_times.remove(None)         
+                n_lb_list_times.sort()
+                n_player_pos = n_lb_list_times.index(n_global_score) + 1
                 
         modes = list(new_scores.keys())
         new_scores = list(new_scores.values())
