@@ -181,6 +181,7 @@ class _KnownPlayers(BaseData):
         player = Player(uuid=uuid)
         last_update = player.last_update
         
+        player.name = player.uuid_to_name()
         player.last_update = int(time.time())
         last_scores = player.scores.copy()
         new_scores = player.update_scores()

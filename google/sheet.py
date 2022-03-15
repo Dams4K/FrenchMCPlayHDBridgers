@@ -78,7 +78,7 @@ class _LeaderboardSheet:
         for p_data in l_leaderboard.get(l_global_score, []):
             if p_data["name"] == player.name:
                 l_lb_list_times = list(l_leaderboard.keys())
-                l_lb_list_times.remove(None)
+                if None in  l_lb_list_times: l_lb_list_times.remove(None)
                 l_lb_list_times.sort()
                 l_player_pos = l_lb_list_times.index(l_global_score) + 1
 
@@ -88,7 +88,7 @@ class _LeaderboardSheet:
         for p_data in n_leaderboard.get(n_global_score, []):
             if p_data["name"] == player.name:
                 n_lb_list_times = list(n_leaderboard.keys())
-                n_lb_list_times.remove(None)         
+                if None in  n_lb_list_times: n_lb_list_times.remove(None)         
                 n_lb_list_times.sort()
                 n_player_pos = n_lb_list_times.index(n_global_score) + 1
                 

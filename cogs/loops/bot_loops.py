@@ -35,8 +35,8 @@ class BotLoops(commands.Cog):
 
         for p_uuid in current_data:
             player = Player(uuid=p_uuid)
-            
             if int(time.time()) - player.last_update > self.update_players._sleep:
+                print(player.name)
                 l_scores = player.scores.copy()
                 new_scores = KnownPlayers.update_player(p_uuid)
                 if new_scores:
