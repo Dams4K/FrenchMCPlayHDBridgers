@@ -46,14 +46,14 @@ class _LeaderboardSheet:
             if self.GLOBAL_MODES.intersection(set(new_scores)):
                 if self.INCLINED_MODE in new_scores: new_scores.pop(self.INCLINED_MODE)
                 if self.ONESTACK_MODE in new_scores: new_scores.pop(self.ONESTACK_MODE)
-                
-                n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
-                if n_leaderboard:
-                    self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
-                    request = self.sheet.values().update(
-                        spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE,
-                        valueInputOption="USER_ENTERED", body={"values": self.gen_leaderboard(n_leaderboard) }
-                    ).execute()
+                if player.scores["short"] < 6000:
+                    n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
+                    if n_leaderboard:
+                        self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
+                        request = self.sheet.values().update(
+                            spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE,
+                            valueInputOption="USER_ENTERED", body={"values": self.gen_leaderboard(n_leaderboard) }
+                        ).execute()
             
             if self.INCLINED_MODE in new_scores:
                 pass
