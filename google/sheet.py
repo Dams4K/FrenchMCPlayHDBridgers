@@ -48,6 +48,7 @@ class _LeaderboardSheet:
                 if self.ONESTACK_MODE in new_scores: new_scores.pop(self.ONESTACK_MODE)
                 if player.scores["short"] != None and player.scores["short"] != -1 and player.scores["short"] < 6000:
                     n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
+                    print(n_leaderboard)
                     if n_leaderboard:
                         self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
                         request = self.sheet.values().update(
@@ -136,7 +137,7 @@ class _LeaderboardSheet:
         
         for uuid in guild_data.whitelist.data:
             player = Player(uuid=uuid)
-            if player == None: continue
+            if player == None or player.scores["short"] == None or player.scores["short"] >= 6000: continue
             global_score = calc_global_score(player.scores)
             if global_score == None: continue
 
