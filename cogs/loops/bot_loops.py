@@ -20,7 +20,7 @@ class BotLoops(commands.Cog):
                 await self.bot.sync_commands(guild_ids=[guild_id], unregister_guilds=[guild_id])
 
 
-    @tasks.loop(seconds=600)
+    @tasks.loop(seconds=1200)
     async def update_players(self):
         for g in self.bot.guilds:
             g_data = GuildData(g.id)
@@ -36,7 +36,6 @@ class BotLoops(commands.Cog):
         for p_uuid in current_data:
             player = Player(uuid=p_uuid)
             if int(time.time()) - player.last_update > self.update_players._sleep:
-                print(player.name)
                 l_scores = player.scores.copy()
                 new_scores = KnownPlayers.update_player(p_uuid)
                 if new_scores:
@@ -51,7 +50,7 @@ class BotLoops(commands.Cog):
                     
                         guilds_data[g_data] = ch
                     await LeaderboardSheet.update_sheet(guilds_data, player, l_scores, new_scores)
-                await asyncio.sleep(sleep_time_betwen_player_update * 4 + 1)
+                await asyncio.sleep(sleep_time_betwen_player_update * 4 + 4)
     
     
 
