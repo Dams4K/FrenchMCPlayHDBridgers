@@ -46,7 +46,7 @@ class _LeaderboardSheet:
             if self.GLOBAL_MODES.intersection(set(new_scores)):
                 if self.INCLINED_MODE in new_scores: new_scores.pop(self.INCLINED_MODE)
                 if self.ONESTACK_MODE in new_scores: new_scores.pop(self.ONESTACK_MODE)
-                if player.scores["short"] < 6000:
+                if player.scores["short"] != None and player.scores["short"] != -1 and player.scores["short"] < 6000:
                     n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
                     if n_leaderboard:
                         self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
@@ -72,7 +72,7 @@ class _LeaderboardSheet:
         
         n_global_score = self.calc_global_score(scores)
         
-        if n_global_score == None or player.scores["short"] == None or player.scores["short"] > 6000: return
+        if n_global_score == None: return False
 
         l_player_pos = -1
         for p_data in l_leaderboard.get(l_global_score, []):
