@@ -8,8 +8,8 @@ PLAYER_UNFOUND,,Le joueur **{name}** est introuvable,,
 WHITELIST_LIST,,Nombre de joueur dans la whitelist,,
 BASE_WHITELIST_LIST_PLAYER,,**{name}** (*{member}*),,
 NEW_PB_CHANNEL_CHANGE,,Tout les nouveaux *personnal bests* seront affiché dans le salon {channel.mention},,
-BETTER_PB,,"**Nouveau PB!** <@{member_id}> __{score} en {mode}__ **GG**
+BETTER_PB,,"**Nouveau PB!** <@{member_id}> __{score} en {mode}__ ***GG***
 `#{last_pos}` -> `#{new_pos}` ({str_new_global_score})",,
-SAME_PB,,"**Nouveau PB!** <@{member_id}> __{score} en {mode}__ **GG**
+SAME_PB,,"**Nouveau PB!** <@{member_id}> __{score} en {mode}__ ***GG***
 `#{new_pos}` ({str_new_global_score})",,
 LOWER_PB,,**Nouveau PB!!!!!!!** Ah bah nan enfaite, <@{member_id}> a décidé de faire je ne sais quoi, mais son pb a diminué.... Donc.. son nouveau pb... est de **{score}** en **{mode}** GG!!!??......\n#{last_pos} -> #{new_pos} ({str_new_global_score})

@@ -1,0 +1,2 @@
+DEBUG:logging_p2:2022-03-15 19:50:25,511:logging_p2.py:cube -> x: 5; return value: 125
+INFO:__main__:2022-03-15 19:50:25,511:logging_p1.py:square -> x: 5; return value: 25
