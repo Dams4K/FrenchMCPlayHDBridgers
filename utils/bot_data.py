@@ -7,6 +7,11 @@ import inspect
 from utils.lang.lang import Lang
 from utils.references import References
 from utils.bot_errors import *
+from utils.bot_logging import get_logging
+
+logging_error = get_logging(__name__, "error")
+logging_info = get_logging(__name__, "info")
+logging_debug = get_logging(__name__, "debug")
 
 class APIS_URLS:
     MCPLAYHD_API_STATUS_URL = "https://mcplayhd.net/api/?token={token}"
@@ -25,6 +30,7 @@ class BaseData:
     def load_data(self):
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as f:
+                logging_info.info(f"load data from {self}")
                 self.data = json.load(f)
         else:
             self.save_data()
@@ -34,6 +40,7 @@ class BaseData:
         data = self.get_data()
         if data != None:
             with open(self.file_path, "w") as f:
+                logging_info.info(f"save data from {self}")
                 json.dump(data, f, indent=4)
     
 
@@ -131,6 +138,7 @@ class WhitelistData:
             response_args["content"] = Lang.get_text("PLAYER_ALDREADY_IN_WHITELIST", "fr", **kwargs)
         else:
             self.data[player.uuid] = member.id
+            logging_debug.debug(f"add player {member.id} in guild {self.parent.id}")
             response_args["content"] = Lang.get_text("PLAYER_ADDED_ON_WHITELIST", "fr", **kwargs)
         
         return response_args
@@ -181,7 +189,6 @@ class _KnownPlayers(BaseData):
         player = Player(uuid=uuid)
         last_update = player.last_update
         
-        player.name = player.uuid_to_name()
         player.last_update = int(time.time())
         last_scores = player.scores.copy()
         new_scores = player.update_scores()
@@ -287,8 +294,6 @@ class Player:
 
     def uuid_to_name(self):
         mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))
-        print(mojang_data.json())
-        print(self.uuid)
         if "error" in mojang_data.json():
             raise PlayerNotFound
             

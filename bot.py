@@ -4,15 +4,18 @@ import os
 from discord.ext import commands
 from utils.references import References
 from utils.overwriting import *
+from utils.bot_logging import get_logging
 
 class LeaderboardBot(commands.Bot):
     def __init__(self):
         super().__init__(self.get_prefix, case_insensitive=True, help_command=None, intents=discord.Intents.all())
+        self.logging_info = get_logging(__name__, "info")
     
     async def on_ready(self):
         os.system("clear||cls")
         print(self.user, "is now ready")
         print("version:", References.VERSION)
+        self.logging_info.info("Bot started")
         await self.load_cogs(References.COGS_FOLDER)
     
 

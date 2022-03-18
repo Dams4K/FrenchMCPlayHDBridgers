@@ -53,10 +53,30 @@ class BotLoops(commands.Cog):
                 await asyncio.sleep(sleep_time_betwen_player_update * 4 + 4)
     
     
-
     @update_players.before_loop
     async def before_update_players(self):
         print('update players loop started')
+        await self.bot.wait_until_ready()
+
+
+    @tasks.loop(hours=1)
+    async def update_name(self):
+        KnownPlayers.load_data()
+        current_data = KnownPlayers.get_data()
+
+        for p_uuid in current_data:
+            player = Player(uuid=p_uuid)
+            player.name = player.uuid_to_name()
+        
+        KnownPlayers.load_data()
+        KnownPlayers.data[uuid] = player.to_dict()
+        KnownPlayers.save_data()
+        await asyncio.sleep(5*60)
+    
+
+    @update_name.before_loop
+    async def before_update_name(self):
+        print('update name loop started')
         await self.bot.wait_until_ready()
 
 
