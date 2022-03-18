@@ -8,6 +8,7 @@ class BotLoops(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
         self.update_players.start()
+        self.update_name.start()
         self.desynced_commands.start()
 
 
