@@ -70,7 +70,7 @@ class BotLoops(commands.Cog):
             player.name = player.uuid_to_name()
         
         KnownPlayers.load_data()
-        KnownPlayers.data[uuid] = player.to_dict()
+        KnownPlayers.data[p_uuid] = player.to_dict()
         KnownPlayers.save_data()
         await asyncio.sleep(5*60)
     
