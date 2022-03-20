@@ -25,6 +25,9 @@ class _LeaderboardSheet:
     INCLINED_MODE = "inclined"
     ONESTACK_MODE = "onestack"
 
+    logging_error = get_logging(__name__, "error")
+    logging_debug = get_logging(__name__, "debug")
+    
     def __init__(self):
         self.credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.SAMPLE_SPREADSHEET_ID = References.WORKSHEET_ID
@@ -40,7 +43,7 @@ class _LeaderboardSheet:
             member_id = guild_data.whitelist.data[player.uuid]
             spreadsheet_id = guild_data.get_spreadsheet_id()
             if spreadsheet_id == None:
-                print("spreadsheet_id is None")
+                self.logging_error.error(f"spreadsheet_id is None fo {guild_data.id}")
                 continue
 
             if self.GLOBAL_MODES.intersection(set(new_scores)):
@@ -48,7 +51,9 @@ class _LeaderboardSheet:
                 if self.ONESTACK_MODE in new_scores: new_scores.pop(self.ONESTACK_MODE)
                 if player.scores["short"] != None and player.scores["short"] != -1 and player.scores["short"] < 6000:
                     n_leaderboard = await self.update_global_sheet(guild_data, player, new_scores, l_scores, guilds_data[guild_data], member_id, player.scores)
-                    print(n_leaderboard)
+                    
+                    self.logging_debug.debug(n_leaderboard)
+
                     if n_leaderboard:
                         self.sheet.values().clear(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute()
                         request = self.sheet.values().update(
@@ -67,7 +72,9 @@ class _LeaderboardSheet:
         l_sheet_values = self.sheet.values().get(spreadsheetId=spreadsheet_id, range=self.GLOBAL_RANGE).execute().get("values", [])
         
         l_leaderboard = self.parse_global_leaderboard(l_sheet_values)
-        print(member_id)
+        
+        self.logging_debug.debug(member_id)
+
         l_global_score = self.calc_global_score(l_scores)
         n_leaderboard = self.get_global_leaderboard(guild_data)
         
@@ -105,6 +112,7 @@ class _LeaderboardSheet:
             "score": "** & **".join(new_scores),
         }
 
+        self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}")
         if l_player_pos < n_player_pos and l_player_pos != -1:
             await channel.send(Lang.get_text("BETTER_PB", "fr", **get_test_kwargs))
         elif l_player_pos == n_player_pos or l_player_pos == -1:

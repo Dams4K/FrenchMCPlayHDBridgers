@@ -17,7 +17,6 @@ class BotLoops(commands.Cog):
         for guild_id in References.BETA_GUILDS:
             g_desynced_commands = await self.bot.get_desynced_commands(guild_id=guild_id)
             if g_desynced_commands:
-                # print("resync", guild_id, g_desynced_commands)
                 await self.bot.sync_commands(guild_ids=[guild_id], unregister_guilds=[guild_id])
 
 
