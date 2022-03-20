@@ -247,7 +247,7 @@ class Player:
             return None
         stats = mcplayhd_data.json()["data"]["stats"]
         if stats == None:
-            self.logging_debug.debug(f"stats is None for {self.uuid} : {self.name} in {mode}")
+            logging_debug.debug(f"stats is None for {self.uuid} : {self.name} in {mode}")
             return None
         else:
             return stats["timeBest"]
