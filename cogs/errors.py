@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from utils.bot_logging import get_logging
 
 class ErrorHandling(commands.Cog):
     logging_error = get_logging(__name__, "error")
