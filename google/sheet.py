@@ -113,7 +113,7 @@ class _LeaderboardSheet:
             "score": "** & **".join(new_scores),
         }
 
-        self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}")
+        self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}; member_id: {member_id}")
         if l_player_pos < n_player_pos and l_player_pos != -1:
             await channel.send(Lang.get_text("BETTER_PB", "fr", **get_test_kwargs))
         elif l_player_pos == n_player_pos or l_player_pos == -1:

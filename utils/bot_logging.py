@@ -15,7 +15,7 @@ def get_logging(name: str, level: str):
 
     logger = logging.getLogger(name)
 
-    formatter = logging.Formatter("[%(levelname)s : %(filename)s] [%(asctime)s]::%(funcName)s -> %(message)s")
+    formatter = logging.Formatter("[%(levelname)s : %(filename)s] [%(asctime)s]:%(funcName)s -> %(message)s")
 
     file_handler = logging.FileHandler(LOGGING_PATH)
     file_handler.setFormatter(formatter)

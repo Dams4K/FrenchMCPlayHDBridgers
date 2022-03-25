@@ -30,7 +30,7 @@ class BaseData:
     def load_data(self):
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as f:
-                logging_info.info(f"load data from {self}")
+                # logging_info.info(f"load data from {self}")
                 self.data = json.load(f)
         else:
             self.save_data()
@@ -40,7 +40,7 @@ class BaseData:
         data = self.get_data()
         if data != None:
             with open(self.file_path, "w") as f:
-                logging_info.info(f"save data from {self}")
+                # logging_info.info(f"save data from {self}")
                 json.dump(data, f, indent=4)
     
 
