@@ -260,8 +260,11 @@ class Player:
         """
         normal = self.get_score("normal")
         short = self.get_score("short")
-        inclined = self.get_score("inclined")
-        onestack = self.get_score("onestack")
+        # inclined = self.get_score("inclined")
+        # onestack = self.get_score("onestack")
+
+        inclined = self.scores["inclined"]
+        onestack = self.scores["onestack"]
         last_scores = self.scores.copy()
 
         self.scores = {
