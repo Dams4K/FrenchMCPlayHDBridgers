@@ -3,7 +3,7 @@ from discord import Option
 from discord.ext import commands
 from discord.commands import permissions, slash_command
 from utils.references import References
-from utils.sheet import LeaderboardSheet
+from google.sheet import LeaderboardSheet
 from utils.bot_data import Player
 
 class GlobalUserCommands(commands.Cog):
