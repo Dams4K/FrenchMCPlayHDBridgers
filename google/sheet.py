@@ -42,6 +42,7 @@ class _LeaderboardSheet:
     async def update_sheet(self, guilds_data, player: Player, l_scores, new_scores):
         for guild_data in guilds_data:
             member_id = guild_data.whitelist.data[player.uuid]
+
             spreadsheet_id = guild_data.get_spreadsheet_id()
             if spreadsheet_id == None:
                 self.logging_error.error(f"spreadsheet_id is None fo {guild_data.id}")
@@ -105,15 +106,15 @@ class _LeaderboardSheet:
         new_scores = list(new_scores.values())
         new_scores = [format(e/1000, ".3f") for e in new_scores]
         get_test_kwargs = {
-            "member_id": member_id,
+            "member_id": member_id if member_id == None else player.name,
             "last_pos": l_player_pos,
             "new_pos": n_player_pos,
             "str_new_global_score": format(n_global_score/1000, ".3f"),
             "mode": "** & **".join(modes),
             "score": "** & **".join(new_scores),
         }
-
-        self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}; member_id: {member_id}")
+        # le bot ne regarde pas si il y a 2 personnes à la meme position et du coup il dit 24 au lieu de 26
+        self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}; member_id: {member_id if member_id == None else player.name}")
         if l_player_pos > n_player_pos and l_player_pos != -1:
             await channel.send(Lang.get_text("BETTER_PB", "fr", **get_test_kwargs))
         elif l_player_pos == n_player_pos or l_player_pos == -1:

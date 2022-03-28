@@ -55,7 +55,7 @@ class WhiteListCommands(commands.Cog):
     @whitelist.command(name="add", guild_ids=References.BETA_GUILDS)
     async def whitelist_add_player(
         self, ctx,
-        member: Option(discord.Member, "member", required=True),
+        member: Option(discord.Member, "member", required=False) = None,
         name: Option(str, "player_name", required=False) = None,
         uuid: Option(str, "player_uuid", required=False) = None
     ):
@@ -71,7 +71,7 @@ class WhiteListCommands(commands.Cog):
         name: Option(str, "player_name", required=False) = None,
         uuid: Option(str, "player_name", required=False) = None
     ):
-        if uuid == name == None and member != None: name = member.nick if member.nick else member.name
+        if uuid == name == member == None and member != None: name = member.nick if member.nick else member.name
         
         response_args = ctx.guild_data.whitelist.remove_player(member=member, name=name, uuid=uuid)
         await ctx.respond(**response_args)

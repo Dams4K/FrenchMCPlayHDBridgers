@@ -137,8 +137,8 @@ class WhitelistData:
         elif player.uuid in self.data:
             response_args["content"] = Lang.get_text("PLAYER_ALDREADY_IN_WHITELIST", "fr", **kwargs)
         else:
-            self.data[player.uuid] = member.id
-            logging_debug.debug(f"add player {member.id} in guild {self.parent.id}")
+            self.data[player.uuid] = member.id if member else None
+            logging_debug.debug(f"add player {member.id if member else None} in guild {self.parent.id}")
             response_args["content"] = Lang.get_text("PLAYER_ADDED_ON_WHITELIST", "fr", **kwargs)
         
         return response_args
