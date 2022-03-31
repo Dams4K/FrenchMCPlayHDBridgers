@@ -99,6 +99,7 @@ class _LeaderboardSheet:
 
         n_best_times = list(n_leaderboard.keys())
         if None in n_best_times: n_best_times.remove(None)
+        n_best_times = [float(e.replace(",", ".")) for e in n_best_times]
         n_best_times.sort()
         gap, n_player_pos, find = 0, -1, False
         
@@ -165,8 +166,8 @@ class _LeaderboardSheet:
 
             leaderboard[global_score].append({
                 "name": player.name,
-                "short": float(short),
-                "normal": float(normal),
+                "short": short,
+                "normal": normal,
             })
         
         return leaderboard
