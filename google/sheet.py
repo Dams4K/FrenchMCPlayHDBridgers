@@ -99,7 +99,7 @@ class _LeaderboardSheet:
 
         n_best_times = list(n_leaderboard.keys())
         if None in n_best_times: n_best_times.remove(None)
-        print(n_best_times)
+        
         n_best_times.sort()
         gap, n_player_pos, find = 0, -1, False
         
