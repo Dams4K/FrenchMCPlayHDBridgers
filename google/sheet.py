@@ -84,24 +84,31 @@ class _LeaderboardSheet:
         
         if n_global_score == None: return False
 
-        l_player_pos = -1
-        for p_data in l_leaderboard.get(l_global_score, []):
-            if p_data["name"] == player.name:
-                l_lb_list_times = list(l_leaderboard.keys())
-                if None in  l_lb_list_times: l_lb_list_times.remove(None)
-                l_lb_list_times.sort()
-                l_player_pos = l_lb_list_times.index(l_global_score) + 1
 
+        l_best_times = list(l_leaderboard.keys())
+        if None in l_best_times: l_best_times.remove(None)
+        l_best_times.sort()
+        gap, l_player_pos, find = 0, -1, False
+
+        for i in range(len(l_best_times)):
+            l_player_pos = i+1+gap
+            for player_data in l_leaderboard[l_best_times[i]]:
+                if player_data["name"] == player.name: find = True
+            if find: break
+            gap += len(l_leaderboard[l_best_times[i]])-1
+
+        n_best_times = list(n_leaderboard.keys())
+        if None in n_best_times: n_best_times.remove(None)
+        n_best_times.sort()
+        gap, n_player_pos, find = 0, -1, False
         
-        n_player_pos = -1
-        
-        for p_data in n_leaderboard.get(n_global_score, []):
-            if p_data["name"] == player.name:
-                n_lb_list_times = list(n_leaderboard.keys())
-                if None in  n_lb_list_times: n_lb_list_times.remove(None)         
-                n_lb_list_times.sort()
-                n_player_pos = n_lb_list_times.index(n_global_score) + 1
-                
+        for i in range(len(n_best_times)):
+            n_player_pos = i+1+gap
+            for player_data in n_leaderboard[n_best_times[i]]:
+                if player_data["name"] == player.name: find = True
+            if find: break
+            gap += len(n_leaderboard[n_best_times[i]])-1
+
         modes = list(new_scores.keys())
         new_scores = list(new_scores.values())
         new_scores = [format(e/1000, ".3f") for e in new_scores]
@@ -158,8 +165,8 @@ class _LeaderboardSheet:
 
             leaderboard[global_score].append({
                 "name": player.name,
-                "short": short,
-                "normal": normal,
+                "short": float(short),
+                "normal": float(normal),
             })
         
         return leaderboard
