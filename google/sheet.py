@@ -106,7 +106,7 @@ class _LeaderboardSheet:
         new_scores = list(new_scores.values())
         new_scores = [format(e/1000, ".3f") for e in new_scores]
         get_test_kwargs = {
-            "member_id": member_id if member_id == None else player.name,
+            "member_mention": f"<@{member_id}>" if isinstance(member_id, int) else player.name,
             "last_pos": l_player_pos,
             "new_pos": n_player_pos,
             "str_new_global_score": format(n_global_score/1000, ".3f"),
