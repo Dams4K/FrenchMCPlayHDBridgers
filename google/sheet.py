@@ -144,8 +144,8 @@ class _LeaderboardSheet:
 
                 leaderboard[global_score].append({
                     "name": player_infos[1],
-                    "short": float(player_infos[5]),
-                    "normal": float(player_infos[4]),
+                    "short": float(player_infos[5].replace(",", ".")),
+                    "normal": float(player_infos[4].replace(",", ".")),
                 })
         return leaderboard
     
