@@ -109,12 +109,12 @@ class WhiteListCommands(commands.Cog):
 
 
     # USER_COMMANDS
-    @user_command(name="Whitelist Add Member", guild_ids=References.BETA_GUILDS)
-    async def user_whitelist_add_player(self, ctx, member: discord.Member):
-        await self.whitelist_add_player(self, ctx, member=member)
-    @user_command(name="Whitelist Remove Member", guild_ids=References.BETA_GUILDS)
-    async def user_whitelist_remove_player(self, ctx, member: discord.Member):
-        await self.whitelist_remove_player(self, ctx, member=member)
+    # @user_command(name="Whitelist Add Member", guild_ids=References.BETA_GUILDS)
+    # async def user_whitelist_add_player(self, ctx, member: discord.Member):
+    #     await self.whitelist_add_player(self, ctx, member=member)
+    # @user_command(name="Whitelist Remove Member", guild_ids=References.BETA_GUILDS)
+    # async def user_whitelist_remove_player(self, ctx, member: discord.Member):
+    #     await self.whitelist_remove_player(self, ctx, member=member)
     
 
 def setup(bot):
