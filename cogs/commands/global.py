@@ -11,12 +11,12 @@ class GlobalUserCommands(commands.Cog):
         self.bot = bot
 
 
-    @slash_command(name="hello", guild_ids=References.BETA_GUILDS)
+    @slash_command(name="hello")
     async def hello_world(self, ctx):
         await ctx.respond("world")
 
 
-    @slash_command(name="testpb", guild_ids=References.BETA_GUILDS)
+    @slash_command(name="testpb")
     async def test_pb_command(self, ctx,
         member: Option(discord.Member, "member", required=False) = None,
         normal: Option(float, "normal", required=False) = None,

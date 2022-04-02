@@ -48,11 +48,11 @@ class WhiteListCommands(commands.Cog):
 
     # SLASH_COMMANDS
     whitelist = SlashCommandGroup(
-        "whitelist", "Comme ça le joueur sera dans le leaderbord :)", guild_ids=References.BETA_GUILDS
+        "whitelist", "Comme ça le joueur sera dans le leaderbord :)"
     )
     whitelist.checks = [can_moderate]
 
-    @whitelist.command(name="add", guild_ids=References.BETA_GUILDS)
+    @whitelist.command(name="add")
     async def whitelist_add_player(
         self, ctx,
         member: Option(discord.Member, "member", required=False) = None,
@@ -65,7 +65,7 @@ class WhiteListCommands(commands.Cog):
         await ctx.respond(**response_args)
 
 
-    @whitelist.command(name="remove", guild_ids=References.BETA_GUILDS)
+    @whitelist.command(name="remove") # , guild_ids=References.BETA_GUILDS
     async def whitelist_remove_player(self, ctx,
         member: Option(discord.Member, "member", required=False) = None,
         name: Option(str, "player_name", required=False) = None,
@@ -77,7 +77,7 @@ class WhiteListCommands(commands.Cog):
         await ctx.respond(**response_args)
         
 
-    @whitelist.command(name="list", description="List of whitelisted players", guild_ids=References.BETA_GUILDS)
+    @whitelist.command(name="list", description="List of whitelisted players")
     async def whitelist_list(self, ctx):
         paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
         await paginator.respond(ctx.interaction)
