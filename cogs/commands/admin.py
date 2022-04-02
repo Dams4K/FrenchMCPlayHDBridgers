@@ -13,7 +13,7 @@ class GlobalAdminCommands(commands.Cog):
         self.bot = bot
 
 
-    @slash_command(name="set_new_pb_channel", checks=[can_moderate])
+    @slash_command(name="set_new_pb_channel", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
     async def set_new_pb_channel(
         self, ctx: BotApplicationContext, 
         channel: Option(discord.TextChannel, "channel", required=True)
