@@ -26,15 +26,15 @@ class GlobalAdminCommands(commands.Cog):
     async def send_pb(
         self, ctx,
         player_name: Option(str, "player_name", required=True) = None,
-        normal_time: Option(float, "normal_time", required=False) = None,
-        short_time: Option(float, "short_time", required=False) = None
+        normal_time: Option(float, "normal_time", required=False) = -1,
+        short_time: Option(float, "short_time", required=False) = -1
     ):
         if not player_name: return
 
         channel_id = ctx.guild_data.get_pb_channel()
         channel = discord.utils.get(ctx.guild.text_channels, id=channel_id)
         if normal_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="normal", score=normal_time, str_new_global_score="undefined"))
-        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="short", score=short_time, str_new_global_score="undefined"))
+        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="short", score=short_time, new_pos="?", str_new_global_score="undefined"))
 
 
 def setup(bot):
