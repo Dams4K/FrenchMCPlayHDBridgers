@@ -33,8 +33,8 @@ class GlobalAdminCommands(commands.Cog):
 
         channel_id = ctx.guild_data.get_pb_channel()
         channel = discord.utils.get(ctx.guild.text_channels, id=channel_id)
-        if normal_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="normal", score=normal_time, str_new_global_score="undefined"))
-        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="short", score=short_time, new_pos="?", str_new_global_score="undefined"))
+        if normal_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="normal", score=format(normal_time, ".3f"), str_new_global_score="undefined"))
+        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="short", score=format(short_time, ".3f"), new_pos="?", str_new_global_score="undefined"))
 
 
 def setup(bot):
