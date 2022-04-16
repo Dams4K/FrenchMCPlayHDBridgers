@@ -25,9 +25,9 @@ class GlobalAdminCommands(commands.Cog):
     @slash_command(name="send_pb", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
     async def send_pb(
         self, ctx,
-        player_name: Option(str, "player_name", description="just the name", required=True),
-        normal_time: Option(float, "normal_time", description="in seconds", required=False),
-        short_time: Option(float, "short_time", description="in seconds", required=False)
+        player_name: Option(str, "player_name", required=True),
+        normal_time: Option(float, "normal_time", required=False),
+        short_time: Option(float, "short_time", required=False)
     ):
         channel_id = ctx.guild_data.get_pb_channel()
         channel = discord.utils.get(ctx.guild.text_channels, id=channel_id)
