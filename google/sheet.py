@@ -124,7 +124,8 @@ class _LeaderboardSheet:
         # le bot ne regarde pas si il y a 2 personnes à la meme position et du coup il dit 24 au lieu de 26
         self.logging_debug.debug(f"last: {l_player_pos} -> new: {n_player_pos}; member_id: {member_id if member_id == None else player.name}")
         if l_player_pos > n_player_pos and l_player_pos != -1 and -1 < new_scores.get("normal", -1) < 12000:
-            await channel.send(Lang.get_text("BETTER_PB", "fr", **get_test_kwargs))
+            msg = await channel.send(Lang.get_text("BETTER_PB", "fr", **get_test_kwargs))
+            self.logging_debug.debug(f"better pb send (message id: {msg.id}) for player {member_id if member_id == None else player.name}")
         elif l_player_pos == n_player_pos or l_player_pos == -1 and -1 < new_scores.get("normal", -1) < 12000:
             await channel.send(Lang.get_text("SAME_PB", "fr", **get_test_kwargs))
 
