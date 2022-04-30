@@ -17,6 +17,54 @@ def calc_global_score(scores: dict):
         return int(round(scores["normal"] / 2 + scores["short"], 3))
 
 
+# class LeaderboardSheet:
+#     GLOBAL_SHEET = "Global (Bot)!A1:F"
+#     NORMAL_SHEET = "Normal!A1:D"
+#     SHORT_SHEET = "Short!A1:D"
+#     INCLINED_SHEET = "Inclined!A1:D"
+#     ONESTACK_SHEET = "Onestack!A1:D"
+
+#     def __init__(self, parent: GuildData):
+#         self.parent: GuildData = parent
+
+#         self.credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+#         self.service = build('sheets', 'v4', credentials=self.credentials)
+#         self.sheet = self.service.spreadsheets()
+
+#         self.spreadsheet_id = guild_data.get_spreadsheet_id()
+
+
+#     def update_player(player: Player, sheet):
+#         pass
+
+#     def get_player_pos(player: Player, sheet):
+#         pass
+
+#     def get_sheet_values(sheet):
+#         return self.sheet.values().get(spreadsheetId=self.spreadsheet_id, range=sheet).execute().get("values", [])
+
+#     def update_sheet(sheet):
+#         pass
+    
+#     def parse_sheet(sheet):
+#         values = self.get_sheet_values()
+#         leaderboard = {}
+#         if values != []:
+#             values.pop(0)
+#             for player_infos in values:
+#                 if player_infos == []:
+#                     continue
+#                 global_score = int(float(player_infos[2])*1000)
+#                 leaderboard.setdefault(global_score, [])
+
+#                 leaderboard[global_score].append({
+#                     "name": player_infos[1],
+#                     "short": float(player_infos[5].replace(",", ".")),
+#                     "normal": float(player_infos[4].replace(",", ".")),
+#                 })
+#         return leaderboard
+
+
 class _LeaderboardSheet:
     GLOBAL_RANGE = "Global (Bot)!A1:F"
     ONESTACK_RANGE = ""
@@ -31,7 +79,7 @@ class _LeaderboardSheet:
     
     def __init__(self):
         self.credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        self.SAMPLE_SPREADSHEET_ID = References.WORKSHEET_ID
+        # self.SAMPLE_SPREADSHEET_ID = References.WORKSHEET_ID
         self.service = build('sheets', 'v4', credentials=self.credentials)
         self.sheet = self.service.spreadsheets()
     

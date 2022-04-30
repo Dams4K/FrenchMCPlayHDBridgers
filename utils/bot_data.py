@@ -74,6 +74,7 @@ class GuildData(BaseData):
 
         super().__init__("datas/guilds/" + str(self.id) + ".json")
         self.whitelist = WhitelistData(self, self.data["whitelist"])
+        self.sheet: LeaderboardSheet = LeaderboardSheet(self)
     
 
     def get_data(self):
@@ -185,14 +186,15 @@ class _KnownPlayers(BaseData):
     
 
     @BaseData.manage_data
-    def update_player(self, uuid):
-        player = Player(uuid=uuid)
+    def update_player(self, player):
+        assert isinstance(player, Player), f"{player} not from player class"
+
         last_update = player.last_update
         
         player.last_update = int(time.time())
         last_scores = player.scores.copy()
         new_scores = player.update_scores()
-        self.data[uuid] = player.to_dict()
+        self.data[player.uuid] = player.to_dict()
         
         if last_scores == player.scores: return False # Nothing Change
 
@@ -236,6 +238,21 @@ class Player:
             KnownPlayers.add_player(self)
             
 
+    @property
+    def short(self): return self.scores["short"]
+    @property
+    def normal(self): return self.scores["normal"]
+    @property
+    def inclined(self): return self.scores["inclined"]
+    @property
+    def onestack(self): return self.scores["onestack"]
+
+    @property
+    def global_score(self):
+    # if isinstance(scores["normal"], int) and scores["normal"] > 0 and isinstance(scores["short"], int) and scores["short"] > 0:
+        return int(round(self.normal / 2 + self.short, 3))
+
+
     def get_score(self, mode="normal"):
         if not self.can_request(1):
             return -1
@@ -260,11 +277,9 @@ class Player:
         """
         normal = self.get_score("normal")
         short = self.get_score("short")
-        # inclined = self.get_score("inclined")
-        # onestack = self.get_score("onestack")
+        inclined = self.get_score("inclined")
+        onestack = self.get_score("onestack")
 
-        inclined = self.scores["inclined"]
-        onestack = self.scores["onestack"]
         last_scores = self.scores.copy()
 
         self.scores = {
@@ -315,3 +330,207 @@ KnownPlayers = _KnownPlayers()
 
 def get_current_status():
     return requests.get(APIS_URLS.MCPLAYHD_API_STATUS_URL.format(token=References.MCPLAYHD_API_TOKEN)).json()
+
+
+from utils.references import References
+from utils.bot_data import KnownPlayers, GuildData, Player
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from google.oauth2 import service_account
+from utils.lang.lang import Lang
+from utils.bot_logging import get_logging
+
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SERVICE_ACCOUNT_FILE = 'datas/google_keys.json'
+
+SAMPLE_RANGE_NAME = "Global (Bot)!A1:F"
+
+
+class LeaderboardSheet:
+    GLOBAL_SHEET = "Global (Bot)!A1:F"
+    NORMAL_SHEET = "Normal!A1:D"
+    SHORT_SHEET = "Short!A1:D"
+    INCLINED_SHEET = "Inclined!A1:D"
+    ONESTACK_SHEET = "Onestack!A1:D"
+
+    SHEETS = [
+        GLOBAL_SHEET,
+        NORMAL_SHEET,
+        SHORT_SHEET,
+        INCLINED_SHEET,
+        ONESTACK_SHEET,
+    ]
+
+    SHORT_SUB_TIME = 6000
+    NORMAL_SUB_TIME = 12000
+    ONESTACK_SUB_TIME = 12050
+    INCLINED_SUB_TIME = 9000
+
+    def __init__(self, parent: GuildData):
+        self.parent: GuildData = parent
+
+        self.credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        self.service = build('sheets', 'v4', credentials=self.credentials)
+        self.sheet = self.service.spreadsheets()
+
+        self.spreadsheet_id = parent.get_spreadsheet_id()
+
+
+    def calc_global_score(self, short: int, normal: int):
+        return round(int(normal) / 2 + int(short), 3)
+
+
+    def update_player(self, player: Player, sheet):
+        last_pos = self.get_player_pos(player, self.parse_sheet(sheet))
+        n_lb = self.gen_leaderboard(sheet)
+        new_pos = self.get_player_pos(player, n_lb)
+
+        if (
+            (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and player.short < self.SHORT_SUB_TIME) or
+            (sheet == self.NORMAL_SHEET and player.normal < self.NORMAL_SUB_TIME) or
+            (sheet == self.INCLINED_SHEET and player.inclined < self.INCLINED_SUB_TIME) or
+            (sheet == self.ONESTACK_SHEET and player.onestack < self.ONESTACK_SUB_TIME)
+        ):
+            self.update_sheet(sheet, n_lb)
+            return last_pos, new_pos
+        return False, False
+
+
+    def gen_leaderboard(self, sheet):
+        lb = {}
+        template = ["name"]
+        if sheet == LeaderboardSheet.GLOBAL_SHEET: template += ["normal", "short"]
+        elif sheet == LeaderboardSheet.NORMAL_SHEET: template += ["normal"]
+        elif sheet == LeaderboardSheet.SHORT_SHEET: template += ["short"]
+        elif sheet == LeaderboardSheet.INCLINED_SHEET: template += ["inclined"]
+        elif sheet == LeaderboardSheet.ONESTACK_SHEET: template += ["onestack"]
+
+        for p_uuid in self.parent.whitelist.get_data():
+            if LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
+                player = Player(uuid=p_uuid)
+                
+                if -1 not in [getattr(player, k) for k in template if k != "name"]:
+                    time = player.global_score
+                    lb.setdefault(time, [])
+                    lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
+        
+        return lb
+
+
+    def get_player_pos(self, player: Player, lb: dict):
+        lb_times = list(lb.keys())
+        lb_times.sort()
+
+        i, pos, gap, find = 0, -1, 0, False
+
+        while not find and i < len(lb_times):
+            pos = i + gap
+            for player_infos in lb[lb_times[i]]:
+                if player_infos["name"] == player.name:
+                    find = True
+
+            gap += len(lb[lb_times[i]])-1     
+            i+=1
+        
+        return pos+1 if find else -1
+
+
+
+    def get_sheet_values(self, sheet):
+        return self.sheet.values().get(spreadsheetId=self.spreadsheet_id, range=sheet).execute().get("values", [])
+
+
+    def get_columns(self, values=None, sheet=None):
+        assert values != None or sheet != None, "values and sheet are None"
+        if values == None and sheet != None: values = self.get_sheet_values(sheet)
+    
+        return [e.lower().replace("pb", "").replace(" ", "").replace("pseudo", "name") for e in values.pop(0)]
+
+    
+    def update_sheet(self, sheet, n_lb):
+        formatted_sheet = self.format_sheet(sheet, n_lb)
+        
+        self.sheet.values().clear(spreadsheetId=self.spreadsheet_id, range=sheet).execute()
+        request = self.sheet.values().update(
+            spreadsheetId=self.spreadsheet_id, range=sheet,
+            valueInputOption="USER_ENTERED", body={"values": formatted_sheet}
+        ).execute()
+    
+
+    def format_sheet(self, sheet, n_lb):
+        times = list(n_lb.keys())
+        if None in times: times.remove(None)
+        times.sort()
+        
+        columns = self.get_columns(sheet=sheet)
+        values = [e.replace("name", "pseudo") for e in columns[:]]
+        values = [ [e[:1].upper() + e[1:] for e in values[:]] ]
+        values.append([""]*len(values[0]))
+
+        gap = 0
+        for i in range(len(times)):
+            pos = i+1+gap
+            for player_data in n_lb[times[i]]:
+                to_append = [ 
+                    e.replace(
+                        "classement", "#" + str(pos)
+                    ).replace(
+                        "name", player_data["name"]
+                    ).replace(
+                        "normal/2+short", format(times[i]/1000, ".3f")
+                    ).replace(
+                        "normal", format(player_data.get("normal", -1), ".3f")
+                    ).replace(
+                        "short", format(player_data.get("short", -1), ".3f")
+                    ).replace(
+                        "inclined", format(player_data.get("inclined", -1), ".3f")
+                    ).replace(
+                        "onestack", format(player_data.get("onestack", -1), ".3f")
+                    )
+                    for e in columns
+                ]
+                values.append(to_append)
+            gap += len(n_lb[times[i]])-1
+
+        return values
+
+
+    def parse_sheet(self, sheet):
+        values = self.get_sheet_values(sheet)
+        
+        leaderboard = {}
+        if values != []:
+            columns = self.get_columns(values=values)
+            order = [e for e in columns if e in ["name", "short", "normal", "inclined", "onestack"]]
+
+            for player_infos in values:
+                if player_infos == []: continue
+
+                d = {k : self.parse_str_to_nbr(player_infos[columns.index(k)]) if k != "name" else player_infos[columns.index(k)] for k in order}
+
+                time = None
+                if sheet == LeaderboardSheet.GLOBAL_SHEET:
+                    time = self.calc_global_score(d["short"]*1000, d["normal"]*1000)
+                else:
+                    time = list(d.values())[-1]
+                
+                leaderboard.setdefault(time, [])
+                leaderboard[time].append(d)
+            
+        return leaderboard
+
+    def parse_str_to_nbr(self, s: str):
+        if s.isdigit(): return int(s)
+        if s.replace(".", "").isdigit() and s.count(".") <= 1: return float(s)
+        else: return s
+
+        return leaderboard
+
+
+if __name__ == "__main__":
+    p = Player(name="Dams4K")
+    print(p.global_score)
+    # KnownPlayers.update_player(p)
+    # gd: GuildData = GuildData(892459726212837427)
+    # print(gd.sheet.update_player(p, LeaderboardSheet.ONESTACK_SHEET))

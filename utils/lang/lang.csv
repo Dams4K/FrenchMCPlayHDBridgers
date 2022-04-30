@@ -12,4 +12,4 @@ BETTER_PB,,"**Nouveau PB!** {member_mention} __{score} en {mode}__ ***GG***
 `#{last_pos}` -> `#{new_pos}` ({str_new_global_score})",,
 SAME_PB,,"**Nouveau PB!** {member_mention} __{score} en {mode}__ ***GG***
 `#{new_pos}` ({str_new_global_score})",,
-LOWER_PB,,**Nouveau PB!!!!!!!** Ah bah nan enfaite, {member_mention} a décidé de faire je ne sais quoi, mais son pb a diminué.... Donc.. son nouveau pb... est de **{score}** en **{mode}** GG!!!??......\n#{last_pos} -> #{new_pos} ({str_new_global_score})
+WORST_PB,,**Nouveau PB!!!!!!!** Ah bah nan enfaite, {member_mention} a décidé de faire je ne sais quoi, mais son pb a diminué.... Donc.. son nouveau pb... est de **{score}** en **{mode}** GG!!!??......\n#{last_pos} -> #{new_pos} ({str_new_global_score})

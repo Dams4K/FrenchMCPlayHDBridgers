@@ -28,8 +28,6 @@ class _References:
 
             self.MCPLAYHD_API_TOKEN = data["mcplayhd_api_token"]
 
-            self.WORKSHEET_ID = data["worksheet_id"]
-
             self.BETA_GUILDS = data["beta_guilds"]
 
 References: _References = _References()
