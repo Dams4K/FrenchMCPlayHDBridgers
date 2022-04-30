@@ -415,8 +415,8 @@ class LeaderboardSheet:
                 if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
                     lb.setdefault(time, [])
-                    print(template)
-                    print({k : (getattr(player, k) if k != "name" else player.name) for k in template})
+                    logging_debug.debug(template)
+                    logging_debug.debug({k : (getattr(player, k) if k != "name" else player.name) for k in template})
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
             else:
