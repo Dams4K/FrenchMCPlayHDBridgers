@@ -419,7 +419,6 @@ class LeaderboardSheet:
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
             else:
-                print("else")
                 if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
                     time = getattr(player, template[-1])
                     print(time)
