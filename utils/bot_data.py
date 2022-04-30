@@ -416,7 +416,7 @@ class LeaderboardSheet:
                     time = player.global_score
                     lb.setdefault(time, [])
                     logging_debug.debug(template)
-                    logging_debug.debug({k : (getattr(player, k) if k != "name" else player.name) for k in template})
+                    print({k : (getattr(player, k) if k != "name" else player.name) for k in template})
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
             else:
