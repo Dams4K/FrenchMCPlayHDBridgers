@@ -239,13 +239,13 @@ class Player:
             
 
     @property
-    def short(self): return self.scores["short"]
+    def short(self): return self.scores["short"] if self.scores["short"] != None else -1
     @property
-    def normal(self): return self.scores["normal"]
+    def normal(self): return self.scores["normal"] if self.scores["normal"] != None else -1
     @property
-    def inclined(self): return self.scores["inclined"]
+    def inclined(self): return self.scores["inclined"] if self.scores["inclined"] != None else -1
     @property
-    def onestack(self): return self.scores["onestack"]
+    def onestack(self): return self.scores["onestack"] if self.scores["onestack"] != None else -1
 
     @property
     def global_score(self):
@@ -410,13 +410,12 @@ class LeaderboardSheet:
 
         for p_uuid in self.parent.whitelist.get_data():
             player = Player(uuid=p_uuid)
-            if LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
+            if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
                 
                 if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
                     lb.setdefault(time, [])
-                    logging_debug.debug(template)
-                    print({k : (getattr(player, k) if k != "name" else player.name) for k in template})
+
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
             else:
