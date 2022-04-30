@@ -409,14 +409,20 @@ class LeaderboardSheet:
         elif sheet == LeaderboardSheet.ONESTACK_SHEET: template += ["onestack"]
 
         for p_uuid in self.parent.whitelist.get_data():
+            player = Player(uuid=p_uuid)
             if LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
-                player = Player(uuid=p_uuid)
                 
-                if -1 not in [getattr(player, k) for k in template if k != "name"]:
+                if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
                     lb.setdefault(time, [])
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
+            else:
+                if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
+                    time = getattr(player, template[-1])
+                    lb.setdefault(time, [])
+                    lb[time].append({"name": player.name})
+
         return lb
 
 
