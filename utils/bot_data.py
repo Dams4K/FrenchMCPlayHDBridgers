@@ -419,8 +419,10 @@ class LeaderboardSheet:
                     lb[time].append({k : (getattr(player, k) / 1000 if k != "name" else player.name) for k in template})
         
             else:
+                print("else")
                 if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
                     time = getattr(player, template[-1])
+                    print(time)
                     lb.setdefault(time, [])
                     lb[time].append({"name": player.name})
 
@@ -468,6 +470,7 @@ class LeaderboardSheet:
     
 
     def format_sheet(self, sheet, n_lb):
+        print("format sheet", sheet)
         times = list(n_lb.keys())
         if None in times: times.remove(None)
         times.sort()
