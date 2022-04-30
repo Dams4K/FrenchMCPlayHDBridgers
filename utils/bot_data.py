@@ -387,11 +387,13 @@ class LeaderboardSheet:
         new_pos = self.get_player_pos(player, n_lb)
 
         if (
-            (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and player.short < self.SHORT_SUB_TIME) or
-            (sheet == self.NORMAL_SHEET and player.normal < self.NORMAL_SUB_TIME) or
-            (sheet == self.INCLINED_SHEET and player.inclined < self.INCLINED_SUB_TIME) or
-            (sheet == self.ONESTACK_SHEET and player.onestack < self.ONESTACK_SUB_TIME)
+            (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and-1 <  player.short < self.SHORT_SUB_TIME) or
+            (sheet == self.NORMAL_SHEET and -1 < player.normal < self.NORMAL_SUB_TIME) or
+            (sheet == self.INCLINED_SHEET and -1 < player.inclined < self.INCLINED_SUB_TIME) or
+            (sheet == self.ONESTACK_SHEET and -1 < player.onestack < self.ONESTACK_SUB_TIME)
         ):
+            print(player.name)
+            print(player.scores)
             self.update_sheet(sheet, n_lb)
             return last_pos, new_pos
         return False, False

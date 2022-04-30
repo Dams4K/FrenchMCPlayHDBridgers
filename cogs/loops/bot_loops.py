@@ -45,16 +45,12 @@ class BotLoops(commands.Cog):
                     for g in self.bot.guilds:
                         g_data = GuildData(g.id)
 
-                        print(player.name)
                         if not player.uuid in g_data.whitelist.data: continue
 
                         if any(e in n_scores.keys() for e in ["short", "normal"]):
                             pass
 
                             last_pos, new_pos = g_data.sheet.update_player(player, LeaderboardSheet.GLOBAL_SHEET)
-                            print(l_scores, n_scores)
-                            print(player.name, last_pos, new_pos)
-
                             p_discord_id = g_data.whitelist.data[player.uuid]
 
                             printable_modes = [ e for e in list(n_scores.keys()) if e in ["short", "normal"] ]
