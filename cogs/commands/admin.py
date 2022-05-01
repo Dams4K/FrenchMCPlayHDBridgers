@@ -7,6 +7,7 @@ from utils.references import References
 from utils.overwriting import BotApplicationContext
 from utils.lang.lang import Lang
 from utils.checks import *
+from discord.ext import bridge
 
 class GlobalAdminCommands(commands.Cog):
     def __init__(self, bot):

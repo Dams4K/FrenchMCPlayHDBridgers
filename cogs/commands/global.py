@@ -1,7 +1,7 @@
 import discord
 from discord import Option
 from discord.ext import commands
-from discord.commands import permissions, slash_command
+from discord.commands import permissions
 from utils.references import References
 from google.sheet import LeaderboardSheet
 from utils.bot_data import Player

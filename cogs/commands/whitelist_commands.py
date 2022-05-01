@@ -119,3 +119,4 @@ class WhiteListCommands(commands.Cog):
 
 def setup(bot):
     bot.add_cog(WhiteListCommands(bot))
+    pass

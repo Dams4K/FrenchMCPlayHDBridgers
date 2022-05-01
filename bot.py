@@ -10,6 +10,11 @@ class LeaderboardBot(bridge.Bot):
     def __init__(self):
         super().__init__(self.get_prefix, case_insensitive=True, help_command=None, intents=discord.Intents.all())
         self.logging_info = get_logging(__name__, "info")
+
+        # Monkey path this. Because it errors now since discord updated command perms
+        self.http.bulk_upsert_command_permissions = self.dummy
+    
+    async def dummy(self, *args, **kwargs): pass
     
     async def on_ready(self):
         os.system("clear||cls")
@@ -17,7 +22,7 @@ class LeaderboardBot(bridge.Bot):
         print("version:", References.VERSION)
         self.logging_info.info("Bot started")
         
-        await self.load_cogs(References.COGS_FOLDER)
+        # await self.load_cogs(References.COGS_FOLDER)
         
     
 
@@ -32,8 +37,8 @@ class LeaderboardBot(bridge.Bot):
         return cls(self, interaction)
 
 
-    async def load_cogs(self, path: str):
-        await self.wait_until_ready()
+    def load_cogs(self, path: str):
+        # await self.wait_until_ready()
         for cog_file in self.get_cogs_file(path):
             self.load_extension(cog_file.replace("/", ".")[:-3])
 
