@@ -421,9 +421,9 @@ class LeaderboardSheet:
             else:
                 if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
                     time = getattr(player, template[-1])
-                    print(time)
+                    
                     lb.setdefault(time, [])
-                    lb[time].append({"name": player.name})
+                    lb[time].append({"name": player.name, template[-1]: time})
 
         return lb
 
