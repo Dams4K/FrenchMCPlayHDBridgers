@@ -22,7 +22,7 @@ class BotLoops(commands.Cog):
                 await self.bot.sync_commands(guild_ids=[guild_id], unregister_guilds=[guild_id])
 
 
-    @tasks.loop(seconds=300)
+    @tasks.loop(seconds=600)
     async def update_players(self):
         for g in self.bot.guilds:
             g_data = GuildData(g.id)

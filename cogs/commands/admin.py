@@ -22,6 +22,10 @@ class GlobalAdminCommands(commands.Cog):
         await ctx.respond(Lang.get_text("NEW_PB_CHANNEL_CHANGE", "fr", channel=channel))
 
 
+    @slash_command(name="update_sheet", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
+    async def update_sheet(semf, ctx, sheet_name: Option(str, "sheet_name", required=True, choices=["global", "normal", "short", "inclined", "onestack"])):
+        pass
+
     @slash_command(name="send_pb", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
     async def send_pb(
         self, ctx,
