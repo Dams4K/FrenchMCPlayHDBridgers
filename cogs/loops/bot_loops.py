@@ -11,7 +11,7 @@ class BotLoops(commands.Cog):
 
         self.update_players.start()
         self.update_name.start()
-        # self.desynced_commands.start()
+        self.desynced_commands.start()
 
 
     @tasks.loop(seconds=20)
