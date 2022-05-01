@@ -37,6 +37,7 @@ class BotLoops(commands.Cog):
 
         for p_uuid in current_data:
             player = Player(uuid=p_uuid)
+            print(player.name)
             if int(time.time()) - player.last_update > self.update_players._sleep:
                 l_scores = player.scores.copy()
                 n_scores = KnownPlayers.update_player(player)
@@ -64,6 +65,7 @@ class BotLoops(commands.Cog):
                                 "score": "** & **".join([str(format(n_scores[e]/1000, ".3f")) for e in printable_modes]),
                             }
 
+                            print(last_pos, new_pos)
 
                             if last_pos == new_pos == False: continue # si le lb n'a pas été update
                             if player.normal >= LeaderboardSheet.NORMAL_SUB_TIME: continue # si le joueur n'a pas sub 12 en normal
@@ -77,7 +79,8 @@ class BotLoops(commands.Cog):
                                 await channel.send(Lang.get_text("BETTER_PB", "fr", **kwargs))
 
                         
-                        for sheet in set(LeaderboardSheet.SHEETS):
+                        for sheet in LeaderboardSheet.SHEETS:
+                            print(sheet)
                             if sheet == LeaderboardSheet.GLOBAL_SHEET: continue
 
                             g_data.sheet.update_player(player, sheet)

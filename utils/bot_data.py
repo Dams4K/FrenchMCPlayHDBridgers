@@ -387,7 +387,7 @@ class LeaderboardSheet:
         new_pos = self.get_player_pos(player, n_lb)
 
         if (
-            (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and-1 <  player.short < self.SHORT_SUB_TIME) or
+            (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and -1 <  player.short < self.SHORT_SUB_TIME) or
             (sheet == self.NORMAL_SHEET and -1 < player.normal < self.NORMAL_SUB_TIME) or
             (sheet == self.INCLINED_SHEET and -1 < player.inclined < self.INCLINED_SUB_TIME) or
             (sheet == self.ONESTACK_SHEET and -1 < player.onestack < self.ONESTACK_SUB_TIME)
@@ -491,13 +491,13 @@ class LeaderboardSheet:
                     ).replace(
                         "normal/2+short", format(times[i]/1000, ".3f")
                     ).replace(
-                        "normal", format(player_data.get("normal", -1), ".3f")
+                        "normal", format(player_data.get("normal", -1)/1000, ".3f")
                     ).replace(
-                        "short", format(player_data.get("short", -1), ".3f")
+                        "short", format(player_data.get("short", -1)/1000, ".3f")
                     ).replace(
-                        "inclined", format(player_data.get("inclined", -1), ".3f")
+                        "inclined", format(player_data.get("inclined", -1)/1000, ".3f")
                     ).replace(
-                        "onestack", format(player_data.get("onestack", -1), ".3f")
+                        "onestack", format(player_data.get("onestack", -1)/1000, ".3f")
                     )
                     for e in columns
                 ]
