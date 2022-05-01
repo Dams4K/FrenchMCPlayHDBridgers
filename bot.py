@@ -1,12 +1,12 @@
 import json
 import discord
 import os
-from discord.ext import commands
+from discord.ext import bridge
 from utils.references import References
 from utils.overwriting import *
 from utils.bot_logging import get_logging
 
-class LeaderboardBot(commands.Bot):
+class LeaderboardBot(bridge.Bot):
     def __init__(self):
         super().__init__(self.get_prefix, case_insensitive=True, help_command=None, intents=discord.Intents.all())
         self.logging_info = get_logging(__name__, "info")
@@ -16,12 +16,7 @@ class LeaderboardBot(commands.Bot):
         print(self.user, "is now ready")
         print("version:", References.VERSION)
         self.logging_info.info("Bot started")
-        # for guild in self.guilds:
-        #     print(guild.name, guild.id)
-        #     if guild.id == 869324507192643635:
-                # for channel in guild.channels:
-                #     print(channel.name)
-                # print(guild.owner)
+        
         await self.load_cogs(References.COGS_FOLDER)
         
     

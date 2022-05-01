@@ -5,6 +5,7 @@ from discord.commands import permissions, slash_command
 from utils.references import References
 from google.sheet import LeaderboardSheet
 from utils.bot_data import Player
+from discord.ext import bridge
 
 class GlobalUserCommands(commands.Cog):
     def __init__(self, bot):
@@ -12,12 +13,12 @@ class GlobalUserCommands(commands.Cog):
         print(__name__, "on")
 
 
-    @slash_command(name="hello", guild_ids=References.BETA_GUILDS)
+    @bridge.bridge_command(name="hello", guild_ids=References.BETA_GUILDS)
     async def hello_world(self, ctx):
         await ctx.respond("world")
 
 
-    @slash_command(name="testpb", guild_ids=References.BETA_GUILDS)
+    @bridge.bridge_command(name="testpb", guild_ids=References.BETA_GUILDS)
     async def test_pb_command(self, ctx,
         member: Option(discord.Member, "member", required=False) = None,
         normal: Option(float, "normal", required=False) = None,
