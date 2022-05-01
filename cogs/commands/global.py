@@ -9,6 +9,7 @@ from utils.bot_data import Player
 class GlobalUserCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        print(__name__, "on")
 
 
     @slash_command(name="hello", guild_ids=References.BETA_GUILDS)

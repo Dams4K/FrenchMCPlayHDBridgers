@@ -11,6 +11,7 @@ from utils.checks import *
 class GlobalAdminCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        print(__name__, "on")
 
 
     @slash_command(name="set_new_pb_channel", checks=[can_moderate], guild_ids=References.BETA_GUILDS)

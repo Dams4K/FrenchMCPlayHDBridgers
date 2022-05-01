@@ -10,6 +10,7 @@ from pathlib import Path
 class OwnerCog(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
+        print(__name__, "on")
 
     async def cog_check(self, ctx: commands.Context):
         return is_the_author(ctx)
