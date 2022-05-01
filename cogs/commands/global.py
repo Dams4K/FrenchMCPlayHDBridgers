@@ -27,6 +27,7 @@ class GlobalUserCommands(commands.Cog):
         w_data = ctx.guild_data.whitelist.get_data()
         p_uuid = list(w_data.keys())[list(w_data.values()).index(member.id)]
         player = Player(uuid=p_uuid)
+        print(player.name)
 
 def setup(bot):
     bot.add_cog(GlobalUserCommands(bot))
