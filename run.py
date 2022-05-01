@@ -6,5 +6,6 @@ from utils.bot_logging import create_new_log
 create_new_log()
 
 bot: LeaderboardBot = LeaderboardBot()
+bot.load_cogs(References.COGS_FOLDER)
 
 bot.run(References.BOT_TOKEN)

@@ -2,7 +2,7 @@ import discord
 from discord import Option
 from discord.ext import commands
 from discord.commands import permissions, slash_command
-
+from utils.bot_data import LeaderboardSheet
 from utils.references import References
 from utils.overwriting import BotApplicationContext
 from utils.lang.lang import Lang
@@ -23,8 +23,10 @@ class GlobalAdminCommands(commands.Cog):
 
 
     @slash_command(name="update_sheet", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
-    async def update_sheet(semf, ctx, sheet_name: Option(str, "sheet_name", required=True, choices=["global", "normal", "short", "inclined", "onestack"])):
-        pass
+    async def update_sheet(self, ctx, sheet_name: Option(str, "sheet_name", required=True, choices=["global", "normal", "short", "inclined", "onestack"])):
+        sheet = getattr(LeaderboardSheet, sheet_name.upper() + "_SHEET")
+        ctx.guild_data.sheet.update_sheet(sheet, ctx.guild_data.sheet.gen_leaderboard(sheet))
+    
 
     @slash_command(name="send_pb", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
     async def send_pb(

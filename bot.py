@@ -16,7 +16,13 @@ class LeaderboardBot(commands.Bot):
         print(self.user, "is now ready")
         print("version:", References.VERSION)
         self.logging_info.info("Bot started")
-        await self.load_cogs(References.COGS_FOLDER)
+        # for guild in self.guilds:
+        #     print(guild.name, guild.id)
+        #     if guild.id == 869324507192643635:
+                # for channel in guild.channels:
+                #     print(channel.name)
+                # print(guild.owner)
+        # await self.load_cogs(References.COGS_FOLDER)
     
 
     async def on_application_command(self, ctx: BotApplicationContext):
@@ -30,8 +36,7 @@ class LeaderboardBot(commands.Bot):
         return cls(self, interaction)
 
 
-    async def load_cogs(self, path: str):
-        await self.wait_until_ready()
+    def load_cogs(self, path: str):
         for cog_file in self.get_cogs_file(path):
             self.load_extension(cog_file.replace("/", ".")[:-3])
 

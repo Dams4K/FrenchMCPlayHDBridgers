@@ -49,8 +49,6 @@ class BotLoops(commands.Cog):
                         if not player.uuid in g_data.whitelist.data: continue
 
                         if any(e in n_scores.keys() for e in ["short", "normal"]):
-                            pass
-
                             last_pos, new_pos = g_data.sheet.update_player(player, LeaderboardSheet.GLOBAL_SHEET)
                             p_discord_id = g_data.whitelist.data[player.uuid]
 
