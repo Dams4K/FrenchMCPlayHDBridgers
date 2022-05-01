@@ -22,7 +22,8 @@ class LeaderboardBot(commands.Bot):
                 # for channel in guild.channels:
                 #     print(channel.name)
                 # print(guild.owner)
-        # await self.load_cogs(References.COGS_FOLDER)
+        await self.load_cogs(References.COGS_FOLDER)
+        
     
 
     async def on_application_command(self, ctx: BotApplicationContext):
@@ -36,7 +37,8 @@ class LeaderboardBot(commands.Bot):
         return cls(self, interaction)
 
 
-    def load_cogs(self, path: str):
+    async def load_cogs(self, path: str):
+        await self.wait_until_ready()
         for cog_file in self.get_cogs_file(path):
             self.load_extension(cog_file.replace("/", ".")[:-3])
 
