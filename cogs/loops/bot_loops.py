@@ -62,18 +62,19 @@ class BotLoops(commands.Cog):
                                 "score": "** & **".join([str(format(n_scores[e]/1000, ".3f")) for e in printable_modes]),
                             }
 
-                            print(last_pos, new_pos)
-
-                            if last_pos == new_pos == False: continue # si le lb n'a pas été update
-                            if player.normal >= LeaderboardSheet.NORMAL_SUB_TIME: continue # si le joueur n'a pas sub 12 en normal
 
                             channel = discord.utils.get(self.bot.get_all_channels(), id=g_data.get_pb_channel())
 
-                            if last_pos == new_pos or -1 in [last_pos, new_pos]:
-                                await channel.send(Lang.get_text("SAME_PB", "fr", **kwargs))
-                                pass
-                            elif last_pos > new_pos:
-                                await channel.send(Lang.get_text("BETTER_PB", "fr", **kwargs))
+                            if last_pos == new_pos == False: continue # si le lb n'a pas été update
+                            elif player.normal >= LeaderboardSheet.NORMAL_SUB_TIME:
+                                if player.normal != -1: continue # si le joueur n'a pas sub 12 en normal
+
+                                await channel.send(Lang.get_text("NO_POS", "fr", **kwargs))
+                            else:
+                                if last_pos == new_pos or -1 in [last_pos, new_pos]:
+                                    await channel.send(Lang.get_text("SAME_PB", "fr", **kwargs))
+                                elif last_pos > new_pos:
+                                    await channel.send(Lang.get_text("BETTER_PB", "fr", **kwargs))
 
                         
                         for sheet in LeaderboardSheet.SHEETS:
