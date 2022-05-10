@@ -8,13 +8,9 @@ from utils.bot_logging import get_logging
 
 class LeaderboardBot(bridge.Bot):
     def __init__(self):
-        super().__init__(self.get_prefix, case_insensitive=True, help_command=None, intents=discord.Intents.all())
+        super().__init__(self.get_prefix, case_insensitive=True, help_command=None, intents=discord.Intents.all(), debug_guilds=[912435770290229348, 892459726212837427])
         self.logging_info = get_logging(__name__, "info")
 
-        # Monkey path this. Because it errors now since discord updated command perms
-        # self.http.bulk_upsert_command_permissions = self.dummy
-    
-    async def dummy(self, *args, **kwargs): pass
     
     async def on_ready(self):
         os.system("clear||cls")
@@ -22,8 +18,6 @@ class LeaderboardBot(bridge.Bot):
         print("version:", References.VERSION)
         self.logging_info.info("Bot started")
         
-        # await self.load_cogs(References.COGS_FOLDER)
-
 
     async def get_application_context(self, interaction, cls = None):
         if cls is None: cls = BotApplicationContext
