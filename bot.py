@@ -12,7 +12,7 @@ class LeaderboardBot(bridge.Bot):
         self.logging_info = get_logging(__name__, "info")
 
         # Monkey path this. Because it errors now since discord updated command perms
-        self.http.bulk_upsert_command_permissions = self.dummy
+        # self.http.bulk_upsert_command_permissions = self.dummy
     
     async def dummy(self, *args, **kwargs): pass
     
@@ -23,18 +23,18 @@ class LeaderboardBot(bridge.Bot):
         self.logging_info.info("Bot started")
         
         # await self.load_cogs(References.COGS_FOLDER)
-        
-    
-
-    async def on_application_command(self, ctx: BotApplicationContext):
-        print(ctx.command.qualified_name)
 
 
     async def get_application_context(self, interaction, cls = None):
-        if cls is None:
-            cls = BotApplicationContext
+        if cls is None: cls = BotApplicationContext
             
         return cls(self, interaction)
+
+
+    async def get_context(self, message, *, cls = BotContext):
+        
+        return await super().get_context(message, cls=cls)
+
 
 
     def load_cogs(self, path: str):

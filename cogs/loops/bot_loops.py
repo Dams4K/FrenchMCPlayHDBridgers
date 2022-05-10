@@ -77,7 +77,6 @@ class BotLoops(commands.Cog):
 
                         
                         for sheet in LeaderboardSheet.SHEETS:
-                            print(sheet)
                             if sheet == LeaderboardSheet.GLOBAL_SHEET: continue
 
                             g_data.sheet.update_player(player, sheet)

@@ -125,6 +125,7 @@ class WhitelistData:
 
     @BaseData.manage_data
     def add_player(self, **kwargs):
+        print(kwargs.get("name"))
         member = kwargs.pop("member")
         response_args = {
             "content": "nothing to say..."
@@ -191,6 +192,7 @@ class _KnownPlayers(BaseData):
 
         last_update = player.last_update
         
+        player.name = player.uuid_to_name()
         player.last_update = int(time.time())
         last_scores = player.scores.copy()
         new_scores = player.update_scores()

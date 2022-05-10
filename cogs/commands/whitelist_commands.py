@@ -4,13 +4,12 @@ from discord.commands import SlashCommandGroup, UserCommand
 from discord import Option
 from discord.commands.context import ApplicationContext
 from discord.ext import commands, pages
-
 from utils.references import References
 from utils.bot_data import Player
 from utils.bot_data import *
 from utils.checks import *
 from utils.overwriting import *
-
+import typing
 import time
 
 class WhiteListCommands(commands.Cog):
@@ -62,7 +61,10 @@ class WhiteListCommands(commands.Cog):
         if uuid == name == None: name = member.nick if member.nick else member.name
 
         response_args = ctx.guild_data.whitelist.add_player(member=member, name=name, uuid=uuid)
-        await ctx.respond(**response_args)
+        if hasattr(ctx, "respond"):
+            await ctx.respond(**response_args)
+        else:
+            await ctx.send(**response_args)
 
 
     @whitelist.command(name="remove", guild_ids=References.BETA_GUILDS)
@@ -74,13 +76,42 @@ class WhiteListCommands(commands.Cog):
         if uuid == name == member == None and member != None: name = member.nick if member.nick else member.name
         
         response_args = ctx.guild_data.whitelist.remove_player(member=member, name=name, uuid=uuid)
-        await ctx.respond(**response_args)
-        
+        if hasattr(ctx, "respond"):
+            await ctx.respond(**response_args)
+        else:
+            await ctx.send(**response_args)
+
 
     @whitelist.command(name="list", description="List of whitelisted players", guild_ids=References.BETA_GUILDS)
     async def whitelist_list(self, ctx):
         paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
         await paginator.respond(ctx.interaction)
+
+
+    @commands.group(name="whitelist", pass_context=True, invoke_without_command=True)
+    async def whitelist_manager(self, ctx):
+        await ctx.respond("qsd")
+
+    @whitelist_manager.command(name="add", pass_context=True)
+    async def _whitelist_add_player(self, ctx, member: str = None, name: str = None, uuid: str = None):
+        if "<@" == member[:2] and ">" == member[-1:]: discord.utils.get(ctx.guild.members, id=int(member.replace("<@", "").replace(">", "")))
+        else: member == None
+
+        uuid = uuid if uuid != "none" else None
+        name = name if name != "none" else None
+        print(member, name, uuid)
+        await self.whitelist_add_player(ctx, member, name, uuid)
+        
+
+    @whitelist_manager.command(name="remove", pass_context=True)
+    async def _whitelist_remove_player(self, ctx, member: discord.Member = None, name: str = None, uuid: str = None):
+        if "<@" == member[:2] and ">" == member[-1:]: discord.utils.get(ctx.guild.members, id=member.replace("<@", "").replace(">", ""))
+        else: member == None
+
+        uuid = uuid if uuid != "none" else None
+        name = name if name != "none" else None
+
+        await self.whitelist_remove_player(ctx, member, name, uuid)
 
 
     # @commands.command(name="whitelist_add")
