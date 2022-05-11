@@ -2,7 +2,7 @@ import discord
 from discord import Option
 from discord.ext import commands
 from discord.commands import permissions, slash_command
-from utils.bot_data import LeaderboardSheet
+from utils.bot_data import *
 from utils.references import References
 from utils.overwriting import BotApplicationContext
 from utils.lang.lang import Lang
@@ -40,10 +40,49 @@ class GlobalAdminCommands(commands.Cog):
     ):
         if not player_name: return
 
+        player_discord_id = None
+        player = None
+
+        for uuid in KnownPlayers.data:
+            if KnownPlayers.data[uuid]["name"].lower() == player_name.lower():
+                guild_players = ctx.guild_data.whitelist.data
+                if uuid in guild_players: player_discord_id = ctx.guild_data.whitelist.data[uuid]
+
+                player = Player(uuid=uuid)
+        if not player: return
+
+        member = discord.utils.get(ctx.guild.members, id=player_discord_id)
+        member_mention = member.mention if member else player_name
+
         channel_id = ctx.guild_data.get_pb_channel()
         channel = discord.utils.get(ctx.guild.text_channels, id=channel_id)
-        if normal_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="normal", score=format(normal_time, ".3f"), str_new_global_score="undefined"))
-        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", member_mention=player_name, mode="short", score=format(short_time, ".3f"), new_pos="?", str_new_global_score="undefined"))
+
+        player.scores["short"] = short_time if short_time else -1
+        player.scores["normal"] = normal_time if normal_time else -1
+
+        modes = []
+        scores = []
+        if normal_time >= 0:
+            modes.append("normal")
+            scores.append(format(normal_time, ".3f"))
+        if short_time >= 0:
+            modes.append("short")
+            scores.append(format(short_time, ".3f"))
+            
+        kwargs = {
+            "member_mention": member_mention,
+            "mode": "** & **".join(modes),
+            "score": "** & **".join(scores),
+            "str_new_global_score": format(player.global_score, ".3f"),
+            "new_pos": ctx.guild_data.sheet.get_player_pos(player, ctx.guild_data.sheet.gen_leaderboard(LeaderboardSheet.GLOBAL_SHEET, players_overrider=[player]))
+        }
+
+        print(kwargs)
+
+        if normal_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", **kwargs))
+        if short_time > 0: await channel.send(Lang.get_text("SAME_PB", "fr", **kwargs))
+
+        await ctx.respond("pb sent")
 
 
 def setup(bot):

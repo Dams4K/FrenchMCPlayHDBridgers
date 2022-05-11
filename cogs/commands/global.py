@@ -1,4 +1,5 @@
 import discord
+import os
 from discord import Option
 from discord.ext import commands
 from discord.commands import permissions
@@ -29,6 +30,13 @@ class GlobalUserCommands(commands.Cog):
         p_uuid = list(w_data.keys())[list(w_data.values()).index(member.id)]
         player = Player(uuid=p_uuid)
         print(player.name)
+    
+    @bridge.bridge_command(name="stats")
+    async def stats_comand(self, ctx):
+        os.system("neofetch > neofetch.txt")
+        with open("neofetch.txt", "r") as f:
+            msg = "".join(f.readlines())
+            await ctx.respond("```\n" + msg + "\n```")
 
 def setup(bot):
     bot.add_cog(GlobalUserCommands(bot))

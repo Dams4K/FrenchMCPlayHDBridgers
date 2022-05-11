@@ -248,11 +248,8 @@ class Player:
     def inclined(self): return self.scores["inclined"] if self.scores["inclined"] != None else -1
     @property
     def onestack(self): return self.scores["onestack"] if self.scores["onestack"] != None else -1
-
     @property
-    def global_score(self):
-    # if isinstance(scores["normal"], int) and scores["normal"] > 0 and isinstance(scores["short"], int) and scores["short"] > 0:
-        return int(round(self.normal / 2 + self.short, 3))
+    def global_score(self): return int(round(self.normal / 2 + self.short, 3))
 
 
     def get_score(self, mode="normal"):
@@ -401,7 +398,7 @@ class LeaderboardSheet:
         return False, False
 
 
-    def gen_leaderboard(self, sheet):
+    def gen_leaderboard(self, sheet, players_overrider=[]):
         lb = {}
         template = ["name"]
         if sheet == LeaderboardSheet.GLOBAL_SHEET: template += ["normal", "short"]
@@ -412,10 +409,19 @@ class LeaderboardSheet:
 
         for p_uuid in self.parent.whitelist.get_data():
             player = Player(uuid=p_uuid)
+            for overrider_player in players_overrider:
+                if overrider_player.uuid == player.uuid:
+                    player = overrider_player
+                    print(player.global_score)
+                    print(sheet)
+
             if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
-                
                 if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
+                    if player in players_overrider:
+                        print(time)
+                        print(player.name)
+                    
                     lb.setdefault(time, [])
 
                     lb[time].append({k : (getattr(player, k) if k != "name" else player.name) for k in template})
@@ -426,6 +432,8 @@ class LeaderboardSheet:
                     
                     lb.setdefault(time, [])
                     lb[time].append({"name": player.name, template[-1]: time})
+
+        print(json.dumps(lb, indent=4))
 
         return lb
 
