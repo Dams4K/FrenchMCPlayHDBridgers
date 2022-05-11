@@ -36,7 +36,7 @@ class GlobalUserCommands(commands.Cog):
         os.system("neofetch > neofetch.txt")
         with open("neofetch.txt", "r") as f:
             msg = "".join(f.readlines())
-            await ctx.respond("```\n" + msg + "\n```")
+            await ctx.respond("```ansi\n" + msg + "\n```")
 
 def setup(bot):
     bot.add_cog(GlobalUserCommands(bot))
