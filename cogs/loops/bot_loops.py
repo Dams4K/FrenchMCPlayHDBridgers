@@ -66,7 +66,7 @@ class BotLoops(commands.Cog):
                             channel = discord.utils.get(self.bot.get_all_channels(), id=g_data.get_pb_channel())
 
                             if last_pos == new_pos == False: continue # si le lb n'a pas été update
-                            elif player.normal >= LeaderboardSheet.NORMAL_SUB_TIME:
+                            elif player.normal >= LeaderboardSheet.NORMAL_SUB_TIME and "normal" in printable_modes and not "short" in printable_modes:
                                 if player.normal != -1: continue # si le joueur n'a pas sub 12 en normal
 
                                 await channel.send(Lang.get_text("NO_POS", "fr", **kwargs))
