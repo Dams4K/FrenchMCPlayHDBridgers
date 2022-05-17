@@ -98,8 +98,12 @@ class BotLoops(commands.Cog):
 
         for p_uuid in current_data:
             player = Player(uuid=p_uuid)
-            player.name = player.uuid_to_name()
-        
+            potential_name = player.uuid_to_name()
+            if potential_name != None:
+                player.name = potential_name
+            else:
+                return
+
         KnownPlayers.load_data()
         KnownPlayers.data[p_uuid] = player.to_dict()
         KnownPlayers.save_data()
