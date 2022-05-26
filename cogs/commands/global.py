@@ -37,7 +37,7 @@ class GlobalUserCommands(commands.Cog):
         player = None
         
         if member != None:
-            w_data = ctx.guild_data.whitelist.get_data()
+            w_data = ctx.guild_data.whitelist.data
             for p_uuid in w_data:
                 if member.id == w_data[p_uuid]:
                     player = Player(uuid=p_uuid)
