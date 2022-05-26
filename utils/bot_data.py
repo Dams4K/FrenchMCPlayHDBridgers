@@ -211,24 +211,37 @@ class Player:
     def __init__(self, **options):
         self.uuid = options.get("uuid", None)
         self.name = options.get("name", None)
-        assert self.name != None or self.uuid != None, "no uuid and no name set"
+        self.faked = options.get("faked", False)
 
-        player_data = KnownPlayers.get_player(name=self.name, uuid=self.uuid)
+        assert self.name != None or self.uuid != None or self.faked, "no uuid and no name set"
+
+        if not self.faked:
+            player_data = KnownPlayers.get_player(name=self.name, uuid=self.uuid)
         
-        if player_data:
-            self.uuid = player_data["uuid"]
-            self.name = player_data["name"]
-            self.scores = player_data["scores"]
-            self.last_update = player_data["last_update"]
+            if player_data:
+                self.uuid = player_data["uuid"]
+                self.name = player_data["name"]
+                self.scores = player_data["scores"]
+                self.last_update = player_data["last_update"]
+            elif not self.faked:
+
+                if self.name != None:
+                    self.uuid = self.name_to_uuid()
+                else:
+                    self.name = self.uuid_to_name()
+
+                self.uuid = self.uuid.replace("-", "")
+                self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
+                self.last_update = 0
+                self.scores = {
+                    "normal": -1,
+                    "short": -1,
+                    "inclined": -1,
+                    "onestack": -1
+                }
+
+                KnownPlayers.add_player(self)
         else:
-
-            if self.name != None:
-                self.uuid = self.name_to_uuid()
-            else:
-                self.name = self.uuid_to_name()
-
-            self.uuid = self.uuid.replace("-", "")
-            self.uuid = self.uuid[:8] + "-" + self.uuid[8:12] + "-" + self.uuid[12:16] + "-" + self.uuid[16:20] + "-" + self.uuid[20:]
             self.last_update = 0
             self.scores = {
                 "normal": -1,
@@ -236,9 +249,6 @@ class Player:
                 "inclined": -1,
                 "onestack": -1
             }
-
-            KnownPlayers.add_player(self)
-            
 
     @property
     def short(self): return self.scores["short"] if self.scores["short"] != None else -1
@@ -413,15 +423,11 @@ class LeaderboardSheet:
             for overrider_player in players_overrider:
                 if overrider_player.uuid == player.uuid:
                     player = overrider_player
-                    print(player.global_score)
-                    print(sheet)
+                    players_overrider.remove(player)
 
             if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
                 if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
-                    if player in players_overrider:
-                        print(time)
-                        print(player.name)
                     
                     lb.setdefault(time, [])
 
@@ -434,8 +440,21 @@ class LeaderboardSheet:
                     lb.setdefault(time, [])
                     lb[time].append({"name": player.name, template[-1]: time})
 
-        print(json.dumps(lb, indent=4))
+        for player in players_overrider:
+            if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
+                if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
+                    time = player.global_score
+                    
+                    lb.setdefault(time, [])
 
+                    lb[time].append({k : (getattr(player, k) if k != "name" else player.name) for k in template})
+        
+            else:
+                if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
+                    time = getattr(player, template[-1])
+                    
+                    lb.setdefault(time, [])
+                    lb[time].append({"name": player.name, template[-1]: time})
         return lb
 
 
