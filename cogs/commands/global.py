@@ -26,7 +26,7 @@ class GlobalUserCommands(commands.Cog):
 
     @bridge.bridge_command(name="testpb")
     async def test_pb_command(self, ctx,
-        member: Option(discord.Member, "member", required=False) = None,
+        # member: Option(discord.Member, "member", required=False) = None,
         player_name: Option(str, "player_name", required=False) = None,
         normal: Option(float, "normal", required=False) = None,
         short: Option(float, "short", required=False) = None,
@@ -36,12 +36,13 @@ class GlobalUserCommands(commands.Cog):
         g_sheet = ctx.guild_data.sheet
         player = None
         
-        if member != None:
-            w_data = ctx.guild_data.whitelist.data
-            for p_uuid in w_data:
-                if member.id == w_data[p_uuid]:
-                    player = Player(uuid=p_uuid)
-        elif player_name != None:
+        # work but only on my pc, not on my rpi3
+        # if member != None:
+        #     w_data = ctx.guild_data.whitelist.data
+        #     for p_uuid in w_data:
+        #         if member.id == w_data[p_uuid]:
+        #             player = Player(uuid=p_uuid)
+        if player_name != None:
             try:
                 player = Player(name=player_name)
             except:
