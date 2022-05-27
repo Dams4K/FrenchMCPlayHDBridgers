@@ -9,6 +9,9 @@
    id="svg8"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
    sodipodi:docname="Second.svg"
+   inkscape:export-filename="Second.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -269,9 +272,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="178.54446"
-     inkscape:cy="270.11479"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="355.67471"
+     inkscape:cy="287.08535"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -317,7 +320,8 @@
        d="M 119.26761,101.23328 64.921264,132.61016 10.574916,101.23328 10.574917,38.479521 64.921265,7.1026421 119.26761,38.479521 Z"
        transform="matrix(1.0813746,0,0,1.0813731,-5.4967798,-0.57744369)"
        inkscape:export-xdpi="191.19244"
-       inkscape:export-ydpi="191.19244" />
+       inkscape:export-ydpi="191.19244"
+       inkscape:export-filename="./Second.png" />
     <path
        inkscape:export-ydpi="191.19244"
        inkscape:export-xdpi="191.19244"

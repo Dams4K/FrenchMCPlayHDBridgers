@@ -418,13 +418,14 @@ class LeaderboardSheet:
         elif sheet == LeaderboardSheet.INCLINED_SHEET: template += ["inclined"]
         elif sheet == LeaderboardSheet.ONESTACK_SHEET: template += ["onestack"]
 
-        for p_uuid in self.parent.whitelist.get_data():
-            player = Player(uuid=p_uuid)
-            for overrider_player in players_overrider:
-                if overrider_player.uuid == player.uuid:
-                    player = overrider_player
-                    players_overrider.remove(player)
+        w_uuids = self.parent.whitelist.get_data()
+        for overrider_player in players_overrider:
+            if overrider_player.uuid in w_uuids:
+                w_uuids.pop(overrider_player.uuid)
+        w_players = [Player(uuid=p_uuid) for p_uuid in w_uuids]
+        w_players.extend(players_overrider)
 
+        for player in w_players:
             if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
                 if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
                     time = player.global_score
@@ -440,21 +441,6 @@ class LeaderboardSheet:
                     lb.setdefault(time, [])
                     lb[time].append({"name": player.name, template[-1]: time})
 
-        for player in players_overrider:
-            if sheet == LeaderboardSheet.GLOBAL_SHEET: #TODO: faire ça autrement, on repete trop de fois cette condition qui est utile qu'une fois 
-                if -1 not in [getattr(player, k) for k in template if k != "name"] and -1 < player.short < self.SHORT_SUB_TIME:
-                    time = player.global_score
-                    
-                    lb.setdefault(time, [])
-
-                    lb[time].append({k : (getattr(player, k) if k != "name" else player.name) for k in template})
-        
-            else:
-                if -1 < getattr(player, template[-1]) < getattr(self, template[-1].upper() + "_SUB_TIME"):
-                    time = getattr(player, template[-1])
-                    
-                    lb.setdefault(time, [])
-                    lb[time].append({"name": player.name, template[-1]: time})
         return lb
 
 
