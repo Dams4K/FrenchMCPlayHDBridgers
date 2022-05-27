@@ -43,10 +43,10 @@ class GlobalUserCommands(commands.Cog):
         #         if member.id == w_data[p_uuid]:
         #             player = Player(uuid=p_uuid)
         if player_name != None:
-            try:
+            # try:
                 player = Player(name=player_name)
-            except:
-                pass
+            # except Exception as e:
+            #     print(e)
 
         if player == None:
             player = Player(faked=True)

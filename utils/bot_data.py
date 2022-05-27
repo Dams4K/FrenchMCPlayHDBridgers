@@ -6,7 +6,7 @@ import requests
 import inspect
 from utils.lang.lang import Lang
 from utils.references import References
-from utils.bot_errors import *
+from cogs.errors import *
 from utils.bot_logging import get_logging
 
 logging_error = get_logging(__name__, "error")
@@ -156,7 +156,7 @@ class WhitelistData:
 
         if player == None:
             response_args["content"] = ""
-            response_args["embed"] = gen_error(Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs))
+            response_args["embed"] = gen_error(Lang.get_text("PLAYER_UNFOUND", "fr", **kwargs)) #TODO: changer ça, les erreurs doivent etre géré dans la cog errors
         elif not player.uuid in self.data:
             response_args["content"] = Lang.get_text("PLAYER_NOT_IN_WHITELIST", "fr", **kwargs)
         else:
@@ -223,8 +223,7 @@ class Player:
                 self.name = player_data["name"]
                 self.scores = player_data["scores"]
                 self.last_update = player_data["last_update"]
-            elif not self.faked:
-
+            else:
                 if self.name != None:
                     self.uuid = self.name_to_uuid()
                 else:
@@ -239,7 +238,6 @@ class Player:
                     "inclined": -1,
                     "onestack": -1
                 }
-
                 KnownPlayers.add_player(self)
         else:
             self.last_update = 0
@@ -313,7 +311,7 @@ class Player:
 
     def name_to_uuid(self):
         mojang_data = requests.get(APIS_URLS.NAME_TO_UUID_URL.format(player_name=self.name))
-        if "error" in mojang_data.json():
+        if mojang_data.text.replace(" ", "") == "" or "error" in mojang_data.json():
             raise PlayerNotFound
 
         return mojang_data.json()["id"]
@@ -321,7 +319,7 @@ class Player:
 
     def uuid_to_name(self):
         mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))
-        if "error" in mojang_data.json():
+        if mojang_data.text.replace(" ", "") == "" or "error" in mojang_data.json():
             # raise PlayerNotFound
             return None
             
@@ -402,8 +400,6 @@ class LeaderboardSheet:
             (sheet == self.INCLINED_SHEET and -1 < player.inclined < self.INCLINED_SUB_TIME) or
             (sheet == self.ONESTACK_SHEET and -1 < player.onestack < self.ONESTACK_SUB_TIME)
         ):
-            print(player.name)
-            print(player.scores)
             self.update_sheet(sheet, n_lb)
             return last_pos, new_pos
         return False, False
