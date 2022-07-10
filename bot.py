@@ -20,7 +20,7 @@ class LeaderboardBot(bridge.Bot):
         
 
     async def get_application_context(self, interaction, cls = BotApplicationContext):
-        return await super().get_application_context(interaction)
+        return await super().get_application_context(interaction, cls=cls)
 
 
     async def get_context(self, message, *, cls = BotContext):

@@ -87,6 +87,7 @@ class WhiteListCommands(commands.Cog):
 
     @whitelist.command(name="list", description="List of whitelisted players", guild_ids=References.BETA_GUILDS)
     async def whitelist_list(self, ctx):
+        print(ctx)
         paginator = pages.Paginator(pages=self.get_pages(ctx), show_disabled=False, loop_pages=True)
         await paginator.respond(ctx.interaction)
 
