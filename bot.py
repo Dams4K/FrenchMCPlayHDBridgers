@@ -19,14 +19,11 @@ class LeaderboardBot(bridge.Bot):
         self.logging_info.info("Bot started")
         
 
-    async def get_application_context(self, interaction, cls = None):
-        if cls is None: cls = BotApplicationContext
-            
-        return cls(self, interaction)
+    async def get_application_context(self, interaction, cls = BotApplicationContext):
+        return await super().get_application_context(interaction)
 
 
     async def get_context(self, message, *, cls = BotContext):
-        
         return await super().get_context(message, cls=cls)
 
 

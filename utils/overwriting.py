@@ -1,5 +1,5 @@
 from discord.commands.context import ApplicationContext
-from discord.ext import commands
+from discord.ext import bridge
 from utils.bot_data import GuildData
 
 class BotApplicationContext(ApplicationContext):
@@ -7,7 +7,7 @@ class BotApplicationContext(ApplicationContext):
     def guild_data(self):
         return GuildData(self.guild_id)
 
-class BotContext(commands.Context):
+class BotContext(bridge.context.BridgeExtContext):
     @property
     def guild_data(self):
         return GuildData(self.guild.id)
