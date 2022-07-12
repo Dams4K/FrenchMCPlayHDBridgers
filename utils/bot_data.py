@@ -501,7 +501,7 @@ class LeaderboardSheet:
                     e.replace(
                         "classement", "#" + str(pos)
                     ).replace(
-                        "name", player_data["name"]
+                        "name", str(player_data["name"])
                     ).replace(
                         "normal/2+short", format(times[i]/1000, ".3f")
                     ).replace(
