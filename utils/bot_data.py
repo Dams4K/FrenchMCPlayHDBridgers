@@ -495,7 +495,9 @@ class LeaderboardSheet:
         for i in range(len(times)):
             pos = i+1+gap
             for player_data in n_lb[times[i]]:
-                to_append = [ 
+
+                print(player_data)
+                to_append = [
                     e.replace(
                         "classement", "#" + str(pos)
                     ).replace(
