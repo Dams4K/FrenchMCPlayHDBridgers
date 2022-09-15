@@ -18,6 +18,7 @@ class APIS_URLS:
     MCPLAYHD_API_URL = "https://mcplayhd.net/api/fastbuilder/{mode}/stats/{player}?token={token}"
     NAME_TO_UUID_URL = "https://api.mojang.com/users/profiles/minecraft/{player_name}"
     UUID_TO_NAME_URL = "https://api.mojang.com/user/profiles/{uuid}/names"
+    PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
 
 
 class BaseData:
@@ -318,12 +319,12 @@ class Player:
 
 
     def uuid_to_name(self):
-        mojang_data = requests.get(APIS_URLS.UUID_TO_NAME_URL.format(uuid=self.uuid))
-        if mojang_data.text.replace(" ", "") == "" or "error" in mojang_data.json():
+        mojang_data = requests.get(APIS_URLS.PROFILE_URL.format(uuid=self.uuid))
+        if "errorMessage" in mojang_data.json():
             # raise PlayerNotFound
             return None
             
-        return mojang_data.json()[-1]["name"]
+        return mojang_data.json()["name"]
 
 
     def to_dict(self):
