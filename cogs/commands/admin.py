@@ -25,7 +25,7 @@ class GlobalAdminCommands(commands.Cog):
 
 
     @slash_command(name="update_sheet", checks=[can_moderate], guild_ids=References.BETA_GUILDS)
-    async def update_sheet(self, ctx, sheet_name: Option(str, "sheet_name", required=True, choices=["global", "normal", "short", "inclined", "onestack"])):
+    async def update_sheet(self, ctx, sheet_name: Option(str, "sheet_name", required=True, choices=["global", "normal", "short", "inclined", "onestack", "inclinedshort"])):
         sheet = getattr(LeaderboardSheet, sheet_name.upper() + "_SHEET")
         ctx.guild_data.sheet.update_sheet(sheet, ctx.guild_data.sheet.gen_leaderboard(sheet))
         await ctx.respond("google sheet mis-à-jour")

@@ -237,7 +237,8 @@ class Player:
                     "normal": -1,
                     "short": -1,
                     "inclined": -1,
-                    "onestack": -1
+                    "onestack": -1,
+                    "inclinedshort": -1
                 }
                 KnownPlayers.add_player(self)
         else:
@@ -246,7 +247,8 @@ class Player:
                 "normal": -1,
                 "short": -1,
                 "inclined": -1,
-                "onestack": -1
+                "onestack": -1,
+                "inclinedshort": -1
             }
 
     @property
@@ -257,6 +259,8 @@ class Player:
     def inclined(self): return self.scores["inclined"] if self.scores["inclined"] != None else -1
     @property
     def onestack(self): return self.scores["onestack"] if self.scores["onestack"] != None else -1
+    @property
+    def inclinedshort(self): return self.scores["inclinedshort"] if self.scores["inclinedshort"] != None else -1
     @property
     def global_score(self): return int(round(self.normal / 2 + self.short, 3))
 
@@ -287,6 +291,7 @@ class Player:
         short = self.get_score("short")
         inclined = self.get_score("inclined")
         onestack = self.get_score("onestack")
+        inclinedshort = self.get_score("inclinedshort")
 
         last_scores = self.scores.copy()
 
@@ -294,7 +299,8 @@ class Player:
             "normal": normal,
             "short": short,
             "inclined": inclined,
-            "onestack": onestack
+            "onestack": onestack,
+            "inclinedshort": inclinedshort
         }
 
         new_scores = {k: v for k, v in self.scores.items() if (k, v) not in last_scores.items()}
@@ -362,6 +368,7 @@ class LeaderboardSheet:
     SHORT_SHEET = "Short!A1:D"
     INCLINED_SHEET = "Inclined!A1:D"
     ONESTACK_SHEET = "Onestack!A1:D"
+    INCLINEDSHORT_SHEET = "InclinedShort!A1:D"
 
     SHEETS = [
         GLOBAL_SHEET,
@@ -369,12 +376,14 @@ class LeaderboardSheet:
         SHORT_SHEET,
         INCLINED_SHEET,
         ONESTACK_SHEET,
+        INCLINEDSHORT_SHEET
     ]
 
     SHORT_SUB_TIME = 6000
     NORMAL_SUB_TIME = 12000
     ONESTACK_SUB_TIME = 12050
     INCLINED_SUB_TIME = 9000
+    INCLINEDSHORT_SUB_TIME = 9000
 
     def __init__(self, parent: GuildData):
         self.parent: GuildData = parent
@@ -399,7 +408,8 @@ class LeaderboardSheet:
             (sheet in [self.GLOBAL_SHEET, self.SHORT_SHEET] and -1 <  player.short < self.SHORT_SUB_TIME) or
             (sheet == self.NORMAL_SHEET and -1 < player.normal < self.NORMAL_SUB_TIME) or
             (sheet == self.INCLINED_SHEET and -1 < player.inclined < self.INCLINED_SUB_TIME) or
-            (sheet == self.ONESTACK_SHEET and -1 < player.onestack < self.ONESTACK_SUB_TIME)
+            (sheet == self.ONESTACK_SHEET and -1 < player.onestack < self.ONESTACK_SUB_TIME) or
+            (sheet == self.INCLINEDSHORT_SHEET and -1 < player.inclinedshort < self.INCLINEDSHORT_SUB_TIME)
         ):
             self.update_sheet(sheet, n_lb)
             return last_pos, new_pos
@@ -414,6 +424,7 @@ class LeaderboardSheet:
         elif sheet == LeaderboardSheet.SHORT_SHEET: template += ["short"]
         elif sheet == LeaderboardSheet.INCLINED_SHEET: template += ["inclined"]
         elif sheet == LeaderboardSheet.ONESTACK_SHEET: template += ["onestack"]
+        elif sheet == LeaderboardSheet.INCLINEDSHORT_SHEET: template += ["inclinedshort"]
 
         w_uuids = self.parent.whitelist.get_data()
         for overrider_player in players_overrider:
@@ -513,6 +524,8 @@ class LeaderboardSheet:
                         "inclined", format(player_data.get("inclined", -1)/1000, ".3f")
                     ).replace(
                         "onestack", format(player_data.get("onestack", -1)/1000, ".3f")
+                    ).replace(
+                        "inclinedshort", format(player_data.get("inclinedshort", -1)/1000, ".3f")
                     )
                     for e in columns
                 ]
@@ -528,7 +541,7 @@ class LeaderboardSheet:
         leaderboard = {}
         if values != []:
             columns = self.get_columns(values=values)
-            order = [e for e in columns if e in ["name", "short", "normal", "inclined", "onestack"]]
+            order = [e for e in columns if e in ["name", "short", "normal", "inclined", "onestack", "inclinedshort"]]
 
             for player_infos in values:
                 if player_infos == []: continue

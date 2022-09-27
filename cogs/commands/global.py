@@ -31,7 +31,8 @@ class GlobalUserCommands(commands.Cog):
         normal: Option(float, "normal", required=False) = None,
         short: Option(float, "short", required=False) = None,
         inclined: Option(float, "inclined", required=False) = None,
-        onestack: Option(float, "onestack", required=False) = None
+        onestack: Option(float, "onestack", required=False) = None,
+        inclinedshort: Option(float, "inclinedshort", required=False) = None
     ):
         g_sheet = ctx.guild_data.sheet
         player = None
@@ -55,6 +56,7 @@ class GlobalUserCommands(commands.Cog):
         if short != None: player.scores["short"] = int(round(short, 3) * 1000)
         if inclined != None: player.scores["inclined"] = int(round(inclined, 3) * 1000)
         if onestack != None: player.scores["onestack"] = int(round(onestack, 3) * 1000)
+        if inclinedshort != None: player.scores["inclinedshort"] = int(round(inclinedshort, 3) * 1000)
 
         embed = discord.Embed(title=f"Position hypothétique de **{player.name if player.name != None else 'personne'}**")
         desc = ""
@@ -75,6 +77,8 @@ class GlobalUserCommands(commands.Cog):
                 LeaderboardSheet.INCLINED_SHEET, f"**__inclined__** *({format(player.inclined/1000, '.3f')})*"
             ).replace(
                 LeaderboardSheet.ONESTACK_SHEET, f"**__onestack__** *({format(player.onestack/1000, '.3f')})*"
+            ).replace(
+                LeaderboardSheet.INCLINEDSHORT_SHEET, f"**__inclined short__** *({format(player.inclinedshort/1000, '.3f')})*"
             )
 
             desc += sheet_name + ": " + ("#" + str(pos) if pos > 3 else GlobalUserCommands.rank_emojis[pos-1]) + "\n"
