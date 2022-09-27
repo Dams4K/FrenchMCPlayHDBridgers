@@ -483,7 +483,7 @@ class LeaderboardSheet:
         assert values != None or sheet != None, "values and sheet are None"
         if values == None and sheet != None: values = self.get_sheet_values(sheet)
     
-        print(values)
+        if values == []: return ["Classement", "Pseudo", "", "PBs"]
 
         return [e.lower().replace("pb", "").replace(" ", "").replace("pseudo", "name") for e in values.pop(0)]
 
