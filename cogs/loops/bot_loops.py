@@ -72,8 +72,10 @@ class BotLoops(commands.Cog):
                                 await channel.send(Lang.get_text("NO_POS", "fr", **kwargs))
                             else:
                                 if last_pos == new_pos or -1 in [last_pos, new_pos]:
+                                    pass
                                     await channel.send(Lang.get_text("SAME_PB", "fr", **kwargs))
                                 elif last_pos > new_pos:
+                                    pass
                                     await channel.send(Lang.get_text("BETTER_PB", "fr", **kwargs))
 
                         
