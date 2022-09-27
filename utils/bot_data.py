@@ -260,7 +260,9 @@ class Player:
     @property
     def onestack(self): return self.scores["onestack"] if self.scores["onestack"] != None else -1
     @property
-    def inclinedshort(self): return self.scores["inclinedshort"] if self.scores["inclinedshort"] != None else -1
+    def inclinedshort(self):
+        self.scores.setdefault("inclinedshort", -1)
+        return self.scores["inclinedshort"] if self.scores["inclinedshort"] != None else -1
     @property
     def global_score(self): return int(round(self.normal / 2 + self.short, 3))
 
