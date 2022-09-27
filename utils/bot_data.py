@@ -453,6 +453,8 @@ class LeaderboardSheet:
 
 
     def get_player_pos(self, player: Player, lb: dict):
+        if lb == None:
+            return -1
         lb_times = list(lb.keys())
         lb_times.sort()
 
@@ -539,8 +541,11 @@ class LeaderboardSheet:
 
 
     def parse_sheet(self, sheet):
-        values = self.get_sheet_values(sheet)
-        
+        try:
+            values = self.get_sheet_values(sheet)
+        except:
+            return None
+
         leaderboard = {}
         if values != []:
             columns = self.get_columns(values=values)
