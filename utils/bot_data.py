@@ -516,8 +516,8 @@ class LeaderboardSheet:
         for i in range(len(times)):
             pos = i+1+gap
             for player_data in n_lb[times[i]]:
-
-                print(player_data)
+                if sheet == LeaderboardSheet.INCLINEDSHORT_SHEET:
+                    print(player_data)
                 to_append = [
                     e.replace(
                         "classement", "#" + str(pos)
