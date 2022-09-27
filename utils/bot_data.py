@@ -485,12 +485,15 @@ class LeaderboardSheet:
     def update_sheet(self, sheet, n_lb):
         formatted_sheet = self.format_sheet(sheet, n_lb)
         
-        self.sheet.values().clear(spreadsheetId=self.spreadsheet_id, range=sheet).execute()
-        request = self.sheet.values().update(
-            spreadsheetId=self.spreadsheet_id, range=sheet,
-            valueInputOption="USER_ENTERED", body={"values": formatted_sheet}
-        ).execute()
-    
+        try:
+            self.sheet.values().clear(spreadsheetId=self.spreadsheet_id, range=sheet).execute()
+            request = self.sheet.values().update(
+                spreadsheetId=self.spreadsheet_id, range=sheet,
+                valueInputOption="USER_ENTERED", body={"values": formatted_sheet}
+            ).execute()
+        except Exception as e:
+            print("Error with the sheet", e)
+
 
     def format_sheet(self, sheet, n_lb):
         print("format sheet", sheet)
