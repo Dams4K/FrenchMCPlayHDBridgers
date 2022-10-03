@@ -328,7 +328,7 @@ class Player:
 
     def uuid_to_name(self):
         mojang_data = requests.get(APIS_URLS.PROFILE_URL.format(uuid=self.uuid))
-        if "errorMessage" in mojang_data.json() or not "name" in mojang_data:
+        if "errorMessage" in mojang_data.json() or not "name" in mojang_data.json():
             print(mojang_data.json())
             # raise PlayerNotFound
             return None
